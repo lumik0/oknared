@@ -1,0 +1,87 @@
+<body class="pinnedribbon">
+    <script>let dllPath = "/Windows/system32/explorerframe.el";</script>
+    <script>
+        async function loadScriptFromRes(path) {
+            let script = document.createElement('script')
+            script.src = 'data:text/plain;base64,' + (await getResFromFile(dllPath, path))
+            document.body.appendChild(script)
+        }
+        async function loadStylesFromRes(path) {
+            let link = document.createElement('link')
+            link.href = 'data:text/css;base64,' + (await getResFromFile(dllPath, path))
+            link.rel = 'stylesheet'
+            document.head.appendChild(link)
+        }
+    </script>
+
+    <div class="ribbon">
+        <div class="select">
+            <div class="elem" id="ribbon_select_file">[File]</div>
+            <div class="Str_49921 elem" id="ribbon_select_main"></div>
+            <div class="Str_49928 elem" id="ribbon_select_share"></div>
+            <div class="Str_49933 elem" id="ribbon_select_view"></div>
+        </div>
+        <div class="content">
+            <section id="ribbon_content_main">1</section>
+            <section id="ribbon_content_share">2</section>
+            <section id="ribbon_content_view">3</section>
+        </div>
+    </div>
+    <div class="explorerContent">
+        <div class="topbar">
+            <div class="navbtn_back disabled" onclick="pathhistoryBack()"></div>
+            <div class="navbtn_next disabled" onclick="pathhistoryNext()"></div>
+            <input type="text" placeholder="Search" id="inputSearch">
+            <input type="text" id="inputPath">
+            <div class="path">
+                <img src="" class="pathicon">
+                <div class="pathContent">
+                    <div></div>
+                </div>
+            </div>
+        </div>
+        <div class="twopanels">
+            <div class="left">
+                <div class="elem">
+                    <div class="name">Тестовый</div>
+                    <div class="children">
+                        <div class="elem">
+                            <div class="name">Тестовый2</div>
+                            <div class="children">
+                                
+                            </div>
+                            <div class="expand"></div>
+                        </div>
+                    </div>
+                    <div class="expand"></div>
+                </div>
+                <div class="elem">
+                    <div class="name">Тестовый3</div>
+                    <div class="children">
+                        <div class="elem">
+                            <div class="name">Тестовый4</div>
+                            <div class="children">
+                                
+                            </div>
+                            <div class="expand"></div>
+                        </div>
+                    </div>
+                    <div class="expand"></div>
+                </div>
+            </div>
+            <div class="right"></div>
+        </div>
+    </div>
+    <div class="dialogBottomBar">
+        <select id="dialogFile_filetype">
+            <option value=""></option>
+        </select>
+        <button style="position: absolute; top: 39px; right: 118px;" id="dialog_selectButton"></button>
+        <button style="position: absolute; top: 39px; right: 18px;" id="dialog_cancelButton"></button>
+    </div>
+
+    <script>
+        loadScriptFromRes('JS/1')
+        loadStylesFromRes('CSS/1')
+    </script>
+</body>

@@ -1,0 +1,135 @@
+<!-- TASKBAR -->
+<body>
+    <div class="taskbar">
+        <div class="startButton"></div>
+        <div class="windowContainer"></div>
+        <div class="tray"></div>
+    </div>
+
+    <style>
+        .taskbar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            background-color: rgba(150, 150, 150, 0.5);
+            width: 100vw;
+            height: 100vh;
+            box-shadow: inset 0px 1px 0px 0px rgba(255, 255, 255, 0.1);
+            --traywidth: 0;
+        }
+
+        .startButton {
+            width: 50px;
+            height: 40px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            background-repeat: no-repeat;
+            background-position: center center;
+        }
+
+        .windowContainer {
+            width: calc(100% - 50px - var(--traywidth));
+            height: 40px;
+            display: flex;
+            position: absolute;
+            left: 50px; top: 0;
+        }
+
+        .windowContainer > .elem {
+            width: 60px;
+            height: 40px;
+            /*background-color: rgb(40, 0, 0);*/
+        }
+
+        .windowContainer > .elem > .img {
+            width: 60px;
+            height: 40px;
+            filter: brightness(5);
+            position: absolute;
+        }
+
+        .windowContainer > .elem div {
+            pointer-events: none;
+        }
+
+        .windowContainer > .elem > .img:nth-child(2),
+        .windowContainer > .elem > .img:nth-child(3) {
+            display: none;
+            position: absolute;
+        }
+
+        .windowContainer > .elem.e2 > .img:nth-child(1) {
+            width: 55px;
+            background-size: 55px 400px;
+        }
+
+        .windowContainer > .elem.e2 > .img:nth-child(2) {
+            width: 5px;
+            display: block;
+            background-position-x: -55px;
+            left: 55px;
+        }
+
+        .windowContainer > .elem.e3 > .img:nth-child(1) {
+            width: 52px;
+            background-size: 52px 400px;
+        }
+
+        .windowContainer > .elem.e3 > .img:nth-child(2) {
+            width: 4px;
+            display: block;
+            background-position-x: -56px;
+            left: 52px;
+        }
+
+        .windowContainer > .elem.e3 > .img:nth-child(3) {
+            width: 4px;
+            display: block;
+            background-position-x: -56px;
+            left: 56px;
+        }
+
+        .windowContainer > .elem.e2 .processicon,
+        .windowContainer > .elem.e3 .processicon {
+            display: block;
+        }
+        .windowContainer > .elem.e2 .windowicon,
+        .windowContainer > .elem.e3 .windowicon {
+            display: none;
+        }
+
+        .windowContainer .windowicon,
+        .windowContainer .windowicon {
+            display: block;
+        }
+        .windowContainer .processicon,
+        .windowContainer .processicon {
+            display: none;
+        }
+
+        .windowContainer > .elem.focus > .img,
+        .windowContainer > .elem:active > .img {
+            background-position-y: -120px;
+        }
+
+        .windowContainer > .elem:active > div > img {
+            margin: 5px 13px 3px 15px;
+        }
+
+        .windowContainer > .elem > div > img {
+            margin: 4px 14px;
+            position: absolute;
+        }
+    </style>
+    <style id="jsstyles1"></style>
+
+    <script>
+        function loadScriptFromRes(path) {
+            let script = document.createElement('script')
+            script.src = 'data:text/plain;base64,' + getRes(path)
+            document.body.appendChild(script)
+        }
+        loadScriptFromRes('JS/1')
+    </script>
+</body>

@@ -1,0 +1,140 @@
+<!-- WINDOWS LIST FOR PROCESS -->
+<body>
+    <div id="block">
+        <table>
+            <tr>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+    <script>
+        let currentState = false
+
+        async function hoverOut(e) {
+            currentState = false
+            window.parent.postMessage({
+                message: 'eval',
+                eval: `
+                    $('#WindowContainer_${wid}').addClass('hide')
+                    $('#WindowContainer_${wid}').removeClass('show')
+                `,
+            })
+        }
+
+        $('body').hover(() => {}, hoverOut)
+
+        function winfocus(wid) {
+            setTimeout(() => {
+                dwm.focus(wid)
+            }, 1)
+        }
+
+        window.parent.postMessage({
+            message: 'eval',
+            eval: `
+                $('body').append(\`
+                    <style>
+                        @keyframes windowcontainer${wid}anim {
+                            0% {
+                                opacity: 0;
+                                transform: translateY(20px)
+                            }
+                            100% {
+                                opacity: 1;
+                                transform: translateY(0)
+                            }
+                        }
+                        @keyframes windowcontainer${wid}animhide {
+                            0% {
+                                opacity: 1;
+                                transform: translateY(0)
+                            }
+                            100% {
+                                opacity: 0;
+                                transform: translateY(20px)
+                            }
+                        }
+                    
+                        #WindowContainer_${wid} {
+                            opacity: 0;
+                            pointer-events: none;
+                        }
+                    
+                        #WindowContainer_${wid}.hide {
+                            pointer-events: none;
+                            animation: windowcontainer${wid}animhide 0.2s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+                        }
+                    
+                        #WindowContainer_${wid}.show {
+                            animation: windowcontainer${wid}anim 0.2s 1s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+                            opacity: 0;
+                            pointer-events: auto;
+                        }
+                    </style>
+                \`)
+            `,
+        })
+
+        window.addEventListener('message', async (event) => {
+            let data = event.data
+            if (data.message == 'displayWindowInfo') {
+                currentState = true
+                $('table > tbody').html('')
+                for await (let elem of data.widList) {
+                    let title = 'Window'
+                    if (dwm.windows[elem].args.windowConfig.title) title = dwm.windows[elem].args.windowConfig.title
+                    $('table > tbody').append(`
+                        <tr onclick="winfocus(${elem})">
+                            <td>
+                                ${title}
+                            </td>    
+                        </tr>
+                    `)
+                }
+                setWindowSize({
+                    y: $('body')[0].offsetHeight + 48 + 'px',
+                    x: '198px',
+                })
+                setWindowPos({
+                    y: 'calc(100vh - 48px - ' + $('body')[0].offsetHeight + 'px)',
+                    x: data.pos + 'px',
+                })
+            } else if (data.message == 'dwm_windowfocuschange') {
+                if (currentState) {
+                    hoverOut()
+                }
+            }
+        })
+    </script>
+    <style>
+        body {
+            margin: 0;
+            background-color: black;
+        }
+
+        #block {
+            width: 182px;
+            padding: 17px 7px;
+            border: 1px red solid;
+            background-color: rgb(255, 138, 138);
+        }
+
+        #block > table {
+            border-collapse: collapse;
+        }
+
+        #block > table tr > td {
+            width: 164px;
+            height: 16px;
+            padding: 7px 8px 8px 8px;
+            background-color: rgb(236, 98, 98);
+            border: 1px solid red;
+        }
+    </style>
+</body>
