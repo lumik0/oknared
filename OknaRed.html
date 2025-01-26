@@ -1,0 +1,2333 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>OknaRed Project</title>
+        <script>
+            /*
+                OknaRed by Igor2677
+                IndexedDB-fs
+                Original script - https://github.com/playerony/indexeddb-fs
+            */
+
+            var EEntryType,
+                __assign = function () {
+                    return (__assign =
+                        Object.assign ||
+                        function (e) {
+                            for (var t, r = 1, a = arguments.length; r < a; r++) for (var n in (t = arguments[r])) Object.prototype.hasOwnProperty.call(t, n) && (e[n] = t[n])
+                            return e
+                        }).apply(this, arguments)
+                }
+            function __rest(e, t) {
+                var r = {}
+                for (var a in e) Object.prototype.hasOwnProperty.call(e, a) && 0 > t.indexOf(a) && (r[a] = e[a])
+                if (null != e && 'function' == typeof Object.getOwnPropertySymbols) {
+                    var n = 0
+                    for (a = Object.getOwnPropertySymbols(e); n < a.length; n++) 0 > t.indexOf(a[n]) && Object.prototype.propertyIsEnumerable.call(e, a[n]) && (r[a[n]] = e[a[n]])
+                }
+                return r
+            }
+            function __awaiter(e, t, r, a) {
+                return new (r || (r = Promise))(function (n, o) {
+                    function i(e) {
+                        try {
+                            c(a.next(e))
+                        } catch (e) {
+                            o(e)
+                        }
+                    }
+                    function s(e) {
+                        try {
+                            c(a.throw(e))
+                        } catch (e) {
+                            o(e)
+                        }
+                    }
+                    function c(e) {
+                        var t
+                        e.done
+                            ? n(e.value)
+                            : ((t = e.value) instanceof r
+                                  ? t
+                                  : new r(function (e) {
+                                        e(t)
+                                    })
+                              ).then(i, s)
+                    }
+                    c((a = a.apply(e, t || [])).next())
+                })
+            }
+            function __generator(e, t) {
+                var r,
+                    a,
+                    n,
+                    o,
+                    i = {
+                        label: 0,
+                        sent: function () {
+                            if (1 & n[0]) throw n[1]
+                            return n[1]
+                        },
+                        trys: [],
+                        ops: [],
+                    }
+                return (
+                    (o = { next: s(0), throw: s(1), return: s(2) }),
+                    'function' == typeof Symbol &&
+                        (o[Symbol.iterator] = function () {
+                            return this
+                        }),
+                    o
+                )
+                function s(s) {
+                    return function (c) {
+                        return (function (s) {
+                            if (r) throw TypeError('Generator is already executing.')
+                            for (; o && ((o = 0), s[0] && (i = 0)), i; )
+                                try {
+                                    if (((r = 1), a && (n = 2 & s[0] ? a.return : s[0] ? a.throw || ((n = a.return) && n.call(a), 0) : a.next) && !(n = n.call(a, s[1])).done)) return n
+                                    switch (((a = 0), n && (s = [2 & s[0], n.value]), s[0])) {
+                                        case 0:
+                                        case 1:
+                                            n = s
+                                            break
+                                        case 4:
+                                            return i.label++, { value: s[1], done: !1 }
+                                        case 5:
+                                            i.label++, (a = s[1]), (s = [0])
+                                            continue
+                                        case 7:
+                                            ;(s = i.ops.pop()), i.trys.pop()
+                                            continue
+                                        default:
+                                            if (!(n = (n = i.trys).length > 0 && n[n.length - 1]) && (6 === s[0] || 2 === s[0])) {
+                                                i = 0
+                                                continue
+                                            }
+                                            if (3 === s[0] && (!n || (s[1] > n[0] && s[1] < n[3]))) {
+                                                i.label = s[1]
+                                                break
+                                            }
+                                            if (6 === s[0] && i.label < n[1]) {
+                                                ;(i.label = n[1]), (n = s)
+                                                break
+                                            }
+                                            if (n && i.label < n[2]) {
+                                                ;(i.label = n[2]), i.ops.push(s)
+                                                break
+                                            }
+                                            n[2] && i.ops.pop(), i.trys.pop()
+                                            continue
+                                    }
+                                    s = t.call(e, i)
+                                } catch (e) {
+                                    ;(s = [6, e]), (a = 0)
+                                } finally {
+                                    r = n = 0
+                                }
+                            if (5 & s[0]) throw s[1]
+                            return { value: s[0] ? s[1] : void 0, done: !0 }
+                        })([s, c])
+                    }
+                }
+            }
+            var getDatabaseCrud = function (e) {
+                    var t = e.databaseName,
+                        r = initializeObjectStoreInstance({ databaseName: t, databaseVersion: e.databaseVersion, objectStoreName: e.objectStoreName })
+                    return { getRecord: getRecordInstance({ initializeObjectStore: r }), putRecord: putRecordInstance({ initializeObjectStore: r }), openCursor: openCursorInstance({ initializeObjectStore: r }), deleteRecord: deleteRecordInstance({ initializeObjectStore: r }) }
+                },
+                OBJECT_STORE_KEY_PATH = 'fullPath',
+                OBJECT_STORE_INDEX_NAME = 'directory',
+                IS_VALID_PATH_REG_EXP_STRING = '^([А-Яа-яA-Za-z]:|s|[А-Яа-яA-Za-z0-9_s-]+(.[А-Яа-яA-Za-z0-9_s-]+)*)(([А-Яа-яA-Za-z0-9_s.-]+)+)$'
+            function getDatabaseObjectFromTarget(e) {
+                return e ? e.result : null
+            }
+            function throwDatabaseOpenError(e, t) {
+                t || e(Error('Something went wrong and the database transaction was not opened.'))
+            }
+            var initializeDatabase = function (e) {
+                    var t = e.databaseName,
+                        r = e.databaseVersion,
+                        a = e.objectStoreName
+                    return new Promise(function (e, n) {
+                        var o = openIndexedDBConnection(t, r)
+                        ;(o.onerror = n),
+                            (o.onsuccess = function (t) {
+                                var r = getDatabaseObjectFromTarget(t.target)
+                                throwDatabaseOpenError(n, r), e(r)
+                            }),
+                            (o.onupgradeneeded = function (e) {
+                                var t = getDatabaseObjectFromTarget(e.target)
+                                throwDatabaseOpenError(n, t)
+                                var r = null == t ? void 0 : t.createObjectStore(a, { keyPath: OBJECT_STORE_KEY_PATH })
+                                null == r || r.createIndex(OBJECT_STORE_INDEX_NAME, OBJECT_STORE_INDEX_NAME, { unique: !1 })
+                            })
+                    })
+                },
+                putRecordInstance = function (e) {
+                    var t = e.initializeObjectStore
+                    return function (e) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            var r
+                            return __generator(this, function (a) {
+                                switch (a.label) {
+                                    case 0:
+                                        return [4, t('readwrite')]
+                                    case 1:
+                                        return (
+                                            (r = a.sent()),
+                                            [
+                                                2,
+                                                new Promise(function (t, a) {
+                                                    var n = r.put(e)
+                                                    ;(n.onerror = a),
+                                                        (n.onsuccess = function () {
+                                                            return t(e)
+                                                        })
+                                                }),
+                                            ]
+                                        )
+                                }
+                            })
+                        })
+                    }
+                },
+                getRecordInstance = function (e) {
+                    var t = e.initializeObjectStore
+                    return function (e, r) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            var a
+                            return __generator(this, function (n) {
+                                switch (n.label) {
+                                    case 0:
+                                        return [4, t('readonly')]
+                                    case 1:
+                                        return (
+                                            (a = n.sent()),
+                                            [
+                                                2,
+                                                new Promise(function (t, n) {
+                                                    var o = a.get(e)
+                                                    ;(o.onerror = n),
+                                                        (o.onsuccess = function (e) {
+                                                            return t(r(null == e ? void 0 : e.target))
+                                                        })
+                                                }),
+                                            ]
+                                        )
+                                }
+                            })
+                        })
+                    }
+                },
+                openCursorInstance = function (e) {
+                    var t = e.initializeObjectStore
+                    return function (e, r) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            var a, n, o
+                            return __generator(this, function (i) {
+                                switch (i.label) {
+                                    case 0:
+                                        return [4, t('readonly')]
+                                    case 1:
+                                        return (
+                                            (a = i.sent().index(OBJECT_STORE_INDEX_NAME)),
+                                            (n = IDBKeyRange.only(e)),
+                                            (o = a.openCursor(n)),
+                                            [
+                                                2,
+                                                new Promise(function (e, t) {
+                                                    ;(o.onerror = t),
+                                                        (o.onsuccess = function (t) {
+                                                            return r(t.target, e)
+                                                        })
+                                                }),
+                                            ]
+                                        )
+                                }
+                            })
+                        })
+                    }
+                },
+                isIndexedDBSupport = function () {
+                    return Boolean(indexedDB)
+                },
+                deleteRecordInstance = function (e) {
+                    var t = e.initializeObjectStore
+                    return function (e) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            var r
+                            return __generator(this, function (a) {
+                                switch (a.label) {
+                                    case 0:
+                                        return [4, t('readwrite')]
+                                    case 1:
+                                        return (
+                                            (r = a.sent()),
+                                            [
+                                                2,
+                                                new Promise(function (t, a) {
+                                                    var n = r.delete(e)
+                                                    ;(n.onerror = a),
+                                                        (n.onsuccess = function () {
+                                                            return t()
+                                                        })
+                                                }),
+                                            ]
+                                        )
+                                }
+                            })
+                        })
+                    }
+                },
+                openIndexedDBConnection = function (e, t) {
+                    return indexedDB.open(e, t)
+                },
+                initializeObjectStoreInstance = function (e) {
+                    var t = e.databaseName,
+                        r = e.databaseVersion,
+                        a = e.objectStoreName
+                    return function (e) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            return __generator(this, function (n) {
+                                switch (n.label) {
+                                    case 0:
+                                        return [4, initializeDatabase({ databaseName: t, databaseVersion: r, objectStoreName: a })]
+                                    case 1:
+                                        return [2, n.sent().transaction(a, e).objectStore(a)]
+                                }
+                            })
+                        })
+                    }
+                },
+                isString$1 = function (e) {
+                    return 'string' == typeof e || e instanceof String
+                },
+                pathRegExp = RegExp(IS_VALID_PATH_REG_EXP_STRING)
+            function isValidPath(e) {
+                return !!isString$1(e) && pathRegExp.test(e)
+            }
+            var tryCatchWrapper = function (e, t) {
+                return __awaiter(void 0, void 0, void 0, function () {
+                    var r
+                    return __generator(this, function (a) {
+                        switch (a.label) {
+                            case 0:
+                                return a.trys.push([0, 2, , 3]), [4, e()]
+                            case 1:
+                                return [2, a.sent()]
+                            case 2:
+                                return (r = a.sent()), t && t(r), [3, 3]
+                            case 3:
+                                return [2, null]
+                        }
+                    })
+                })
+            }
+            function startsWithSlash(e) {
+                return !!isString$1(e) && 0 !== e.length && '/' === e[0]
+            }
+            function normalizeArray(e, t) {
+                for (var r = 0, a = e.length - 1; a >= 0; a--) {
+                    var n = e[a]
+                    '.' === n ? e.splice(a, 1) : '..' === n ? (e.splice(a, 1), r++) : r && (e.splice(a, 1), r--)
+                }
+                if (t) for (; r--; r) e.unshift('..')
+                return e
+            }
+            var splitPathRe = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/,
+                splitPath = function (e) {
+                    return splitPathRe.exec(e).slice(1)
+                }
+            function resolve() {
+                for (var e = '', t = !1, r = arguments.length - 1; r >= -1 && !t; r--) {
+                    var a = r >= 0 ? arguments[r] : '/'
+                    if ('string' != typeof a) throw TypeError('Arguments to path.resolve must be strings')
+                    a && ((e = a + '/' + e), (t = '/' === a.charAt(0)))
+                }
+                return (
+                    (t ? '/' : '') +
+                        (e = normalizeArray(
+                            filter(e.split('/'), function (e) {
+                                return !!e
+                            }),
+                            !t
+                        ).join('/')) || '.'
+                )
+            }
+            function normalize(e) {
+                var t = isAbsolute(e),
+                    r = '/' === substr(e, -1)
+                return (
+                    (e = normalizeArray(
+                        filter(e.split('/'), function (e) {
+                            return !!e
+                        }),
+                        !t
+                    ).join('/')) ||
+                        t ||
+                        (e = '.'),
+                    e && r && (e += '/'),
+                    (t ? '/' : '') + e
+                )
+            }
+            function isAbsolute(e) {
+                return '/' === e.charAt(0)
+            }
+            function join() {
+                return normalize(
+                    filter(Array.prototype.slice.call(arguments, 0), function (e, t) {
+                        if ('string' != typeof e) throw TypeError('Arguments to path.join must be strings')
+                        return e
+                    }).join('/')
+                )
+            }
+            function relative(e, t) {
+                function r(e) {
+                    for (var t = 0; t < e.length && '' === e[t]; t++);
+                    for (var r = e.length - 1; r >= 0 && '' === e[r]; r--);
+                    return t > r ? [] : e.slice(t, r - t + 1)
+                }
+                ;(e = resolve(e).substr(1)), (t = resolve(t).substr(1))
+                for (var a = r(e.split('/')), n = r(t.split('/')), o = Math.min(a.length, n.length), i = o, s = 0; s < o; s++)
+                    if (a[s] !== n[s]) {
+                        i = s
+                        break
+                    }
+                var c = []
+                for (s = i; s < a.length; s++) c.push('..')
+                return (c = c.concat(n.slice(i))).join('/')
+            }
+            var sep = '/',
+                delimiter$1 = ':'
+            function dirname(e) {
+                var t = splitPath(e),
+                    r = t[0],
+                    a = t[1]
+                return r || a ? (a && (a = a.substr(0, a.length - 1)), r + a) : '.'
+            }
+            function basename(e, t) {
+                var r = splitPath(e)[2]
+                return t && r.substr(-1 * t.length) === t && (r = r.substr(0, r.length - t.length)), r
+            }
+            function extname(e) {
+                return splitPath(e)[3]
+            }
+            var path = { extname: extname, basename: basename, dirname: dirname, sep: sep, delimiter: delimiter$1, relative: relative, join: join, isAbsolute: isAbsolute, normalize: normalize, resolve: resolve }
+            function filter(e, t) {
+                if (e.filter) return e.filter(t)
+                for (var r = [], a = 0; a < e.length; a++) t(e[a], a, e) && r.push(e[a])
+                return r
+            }
+            var substr =
+                'b' === 'ab'.substr(-1)
+                    ? function (e, t, r) {
+                          return e.substr(t, r)
+                      }
+                    : function (e, t, r) {
+                          return t < 0 && (t = e.length + t), e.substr(t, r)
+                      }
+            function getDirectoryName(e, t) {
+                var r = path.dirname(e)
+                return '.' === r ? t : r
+            }
+            function getAugmentedNamespace(e) {
+                if (e.__esModule) return e
+                var t = e.default
+                if ('function' == typeof t) {
+                    var r = function e() {
+                        if (this instanceof e) {
+                            var r = [null]
+                            return r.push.apply(r, arguments), new (Function.bind.apply(t, r))()
+                        }
+                        return t.apply(this, arguments)
+                    }
+                    r.prototype = t.prototype
+                } else r = {}
+                return (
+                    Object.defineProperty(r, '__esModule', { value: !0 }),
+                    Object.keys(e).forEach(function (t) {
+                        var a = Object.getOwnPropertyDescriptor(e, t)
+                        Object.defineProperty(
+                            r,
+                            t,
+                            a.get
+                                ? a
+                                : {
+                                      enumerable: !0,
+                                      get: function () {
+                                          return e[t]
+                                      },
+                                  }
+                        )
+                    }),
+                    r
+                )
+            }
+            var global$1 = 'undefined' != typeof global ? global : 'undefined' != typeof self ? self : 'undefined' != typeof window ? window : {},
+                maxInt = 2147483647,
+                base = 36,
+                tMin = 1,
+                tMax = 26,
+                skew = 38,
+                damp = 700,
+                initialBias = 72,
+                initialN = 128,
+                delimiter = '-',
+                regexNonASCII = /[^\x20-\x7E]/,
+                regexSeparators = /[\x2E\u3002\uFF0E\uFF61]/g,
+                errors = { overflow: 'Overflow: input needs wider integers to process', 'not-basic': 'Illegal input >= 0x80 (not a basic code point)', 'invalid-input': 'Invalid input' },
+                baseMinusTMin = base - tMin,
+                floor = Math.floor,
+                stringFromCharCode = String.fromCharCode
+            function error(e) {
+                throw RangeError(errors[e])
+            }
+            function map$1(e, t) {
+                for (var r = e.length, a = []; r--; ) a[r] = t(e[r])
+                return a
+            }
+            function mapDomain(e, t) {
+                var r = e.split('@'),
+                    a = ''
+                return r.length > 1 && ((a = r[0] + '@'), (e = r[1])), a + map$1((e = e.replace(regexSeparators, '.')).split('.'), t).join('.')
+            }
+            function ucs2decode(e) {
+                for (var t, r, a = [], n = 0, o = e.length; n < o; ) (t = e.charCodeAt(n++)) >= 55296 && t <= 56319 && n < o ? (56320 == (64512 & (r = e.charCodeAt(n++))) ? a.push(((1023 & t) << 10) + (1023 & r) + 65536) : (a.push(t), n--)) : a.push(t)
+                return a
+            }
+            function digitToBasic(e, t) {
+                return e + 22 + 75 * (e < 26) - ((0 != t) << 5)
+            }
+            function adapt(e, t, r) {
+                var a = 0
+                for (e = r ? floor(e / damp) : e >> 1, e += floor(e / t); e > (baseMinusTMin * tMax) >> 1; a += base) e = floor(e / baseMinusTMin)
+                return floor(a + ((baseMinusTMin + 1) * e) / (e + skew))
+            }
+            function encode(e) {
+                var t,
+                    r,
+                    a,
+                    n,
+                    o,
+                    i,
+                    s,
+                    c,
+                    u,
+                    l,
+                    h,
+                    f,
+                    d,
+                    m,
+                    p,
+                    v = []
+                for (i = 0, f = (e = ucs2decode(e)).length, t = initialN, r = 0, o = initialBias; i < f; ++i) (h = e[i]) < 128 && v.push(stringFromCharCode(h))
+                for (a = n = v.length, n && v.push(delimiter); a < f; ) {
+                    for (s = maxInt, i = 0; i < f; ++i) (h = e[i]) >= t && h < s && (s = h)
+                    for (s - t > floor((maxInt - r) / (d = a + 1)) && error('overflow'), r += (s - t) * d, t = s, i = 0; i < f; ++i)
+                        if (((h = e[i]) < t && ++r > maxInt && error('overflow'), h == t)) {
+                            for (c = r, u = base; !(c < (l = u <= o ? tMin : u >= o + tMax ? tMax : u - o)); u += base) (p = c - l), (m = base - l), v.push(stringFromCharCode(digitToBasic(l + (p % m), 0))), (c = floor(p / m))
+                            v.push(stringFromCharCode(digitToBasic(c, 0))), (o = adapt(r, d, a == n)), (r = 0), ++a
+                        }
+                    ++r, ++t
+                }
+                return v.join('')
+            }
+            function toASCII(e) {
+                return mapDomain(e, function (e) {
+                    return regexNonASCII.test(e) ? 'xn--' + encode(e) : e
+                })
+            }
+            function isNull(e) {
+                return null === e
+            }
+            function isNullOrUndefined(e) {
+                return null == e
+            }
+            function isString(e) {
+                return 'string' == typeof e
+            }
+            function isObject(e) {
+                return 'object' == typeof e && null !== e
+            }
+            function hasOwnProperty(e, t) {
+                return Object.prototype.hasOwnProperty.call(e, t)
+            }
+            var isArray =
+                Array.isArray ||
+                function (e) {
+                    return '[object Array]' === Object.prototype.toString.call(e)
+                }
+            function stringifyPrimitive(e) {
+                switch (typeof e) {
+                    case 'string':
+                        return e
+                    case 'boolean':
+                        return e ? 'true' : 'false'
+                    case 'number':
+                        return isFinite(e) ? e : ''
+                    default:
+                        return ''
+                }
+            }
+            function stringify(e, t, r, a) {
+                return (
+                    (t = t || '&'),
+                    (r = r || '='),
+                    null === e && (e = void 0),
+                    'object' == typeof e
+                        ? map(objectKeys(e), function (a) {
+                              var n = encodeURIComponent(stringifyPrimitive(a)) + r
+                              return isArray(e[a])
+                                  ? map(e[a], function (e) {
+                                        return n + encodeURIComponent(stringifyPrimitive(e))
+                                    }).join(t)
+                                  : n + encodeURIComponent(stringifyPrimitive(e[a]))
+                          }).join(t)
+                        : a
+                        ? encodeURIComponent(stringifyPrimitive(a)) + r + encodeURIComponent(stringifyPrimitive(e))
+                        : ''
+                )
+            }
+            function map(e, t) {
+                if (e.map) return e.map(t)
+                for (var r = [], a = 0; a < e.length; a++) r.push(t(e[a], a))
+                return r
+            }
+            var objectKeys =
+                Object.keys ||
+                function (e) {
+                    var t = []
+                    for (var r in e) Object.prototype.hasOwnProperty.call(e, r) && t.push(r)
+                    return t
+                }
+            function parse$1(e, t, r, a) {
+                ;(t = t || '&'), (r = r || '=')
+                var n = {}
+                if ('string' != typeof e || 0 === e.length) return n
+                var o = /\+/g
+                e = e.split(t)
+                var i = 1e3
+                a && 'number' == typeof a.maxKeys && (i = a.maxKeys)
+                var s = e.length
+                i > 0 && s > i && (s = i)
+                for (var c = 0; c < s; ++c) {
+                    var u,
+                        l,
+                        h,
+                        f,
+                        d = e[c].replace(o, '%20'),
+                        m = d.indexOf(r)
+                    m >= 0 ? ((u = d.substr(0, m)), (l = d.substr(m + 1))) : ((u = d), (l = '')), (h = decodeURIComponent(u)), (f = decodeURIComponent(l)), hasOwnProperty(n, h) ? (isArray(n[h]) ? n[h].push(f) : (n[h] = [n[h], f])) : (n[h] = f)
+                }
+                return n
+            }
+            const URL = global$1.URL,
+                URLSearchParams = global$1.URLSearchParams
+            var _polyfillNode_url = { parse: urlParse, resolve: urlResolve, resolveObject: urlResolveObject, fileURLToPath: urlFileURLToPath, format: urlFormat, Url: Url, URL: URL, URLSearchParams: URLSearchParams }
+            function Url() {
+                ;(this.protocol = null), (this.slashes = null), (this.auth = null), (this.host = null), (this.port = null), (this.hostname = null), (this.hash = null), (this.search = null), (this.query = null), (this.pathname = null), (this.path = null), (this.href = null)
+            }
+            var protocolPattern = /^([a-z0-9.+-]+:)/i,
+                portPattern = /:[0-9]*$/,
+                simplePathPattern = /^(\/\/?(?!\/)[^\?\s]*)(\?[^\s]*)?$/,
+                delims = ['<', '>', '"', '`', ' ', '\r', '\n', '\t'],
+                unwise = ['{', '}', '|', '\\', '^', '`'].concat(delims),
+                autoEscape = ["'"].concat(unwise),
+                nonHostChars = ['%', '/', '?', ';', '#'].concat(autoEscape),
+                hostEndingChars = ['/', '?', '#'],
+                hostnameMaxLen = 255,
+                hostnamePartPattern = /^[+a-z0-9A-Z_-]{0,63}$/,
+                hostnamePartStart = /^([+a-z0-9A-Z_-]{0,63})(.*)$/,
+                unsafeProtocol = { javascript: !0, 'javascript:': !0 },
+                hostlessProtocol = { javascript: !0, 'javascript:': !0 },
+                slashedProtocol = { http: !0, https: !0, ftp: !0, gopher: !0, file: !0, 'http:': !0, 'https:': !0, 'ftp:': !0, 'gopher:': !0, 'file:': !0 }
+            function urlParse(e, t, r) {
+                if (e && isObject(e) && e instanceof Url) return e
+                var a = new Url()
+                return a.parse(e, t, r), a
+            }
+            function parse(e, t, r, a) {
+                if (!isString(t)) throw TypeError("Parameter 'url' must be a string, not " + typeof t)
+                var n = t.indexOf('?'),
+                    o = -1 !== n && n < t.indexOf('#') ? '?' : '#',
+                    i = t.split(o)
+                i[0] = i[0].replace(/\\/g, '/')
+                var s = (t = i.join(o))
+                if (((s = s.trim()), !a && 1 === t.split('#').length)) {
+                    var c = simplePathPattern.exec(s)
+                    if (c) return (e.path = s), (e.href = s), (e.pathname = c[1]), c[2] ? ((e.search = c[2]), (e.query = r ? parse$1(e.search.substr(1)) : e.search.substr(1))) : r && ((e.search = ''), (e.query = {})), e
+                }
+                var u = protocolPattern.exec(s)
+                if (u) {
+                    var l = (u = u[0]).toLowerCase()
+                    ;(e.protocol = l), (s = s.substr(u.length))
+                }
+                if (a || u || s.match(/^\/\/[^@\/]+@[^@\/]+/)) {
+                    var h = '//' === s.substr(0, 2)
+                    h && (!u || !hostlessProtocol[u]) && ((s = s.substr(2)), (e.slashes = !0))
+                }
+                if (!hostlessProtocol[u] && (h || (u && !slashedProtocol[u]))) {
+                    var f,
+                        d,
+                        m,
+                        p,
+                        v,
+                        y,
+                        g = -1
+                    for (f = 0; f < hostEndingChars.length; f++) -1 !== (d = s.indexOf(hostEndingChars[f])) && (-1 === g || d < g) && (g = d)
+                    for (-1 !== (y = -1 === g ? s.lastIndexOf('@') : s.lastIndexOf('@', g)) && ((v = s.slice(0, y)), (s = s.slice(y + 1)), (e.auth = decodeURIComponent(v))), g = -1, f = 0; f < nonHostChars.length; f++) -1 !== (d = s.indexOf(nonHostChars[f])) && (-1 === g || d < g) && (g = d)
+                    ;-1 === g && (g = s.length), (e.host = s.slice(0, g)), (s = s.slice(g)), parseHost(e), (e.hostname = e.hostname || '')
+                    var b = '[' === e.hostname[0] && ']' === e.hostname[e.hostname.length - 1]
+                    if (!b) {
+                        var F = e.hostname.split(/\./)
+                        for (f = 0, m = F.length; f < m; f++) {
+                            var A = F[f]
+                            if (A && !A.match(hostnamePartPattern)) {
+                                for (var w = '', E = 0, $ = A.length; E < $; E++) A.charCodeAt(E) > 127 ? (w += 'x') : (w += A[E])
+                                if (!w.match(hostnamePartPattern)) {
+                                    var _ = F.slice(0, f),
+                                        R = F.slice(f + 1),
+                                        S = A.match(hostnamePartStart)
+                                    S && (_.push(S[1]), R.unshift(S[2])), R.length && (s = '/' + R.join('.') + s), (e.hostname = _.join('.'))
+                                    break
+                                }
+                            }
+                        }
+                    }
+                    e.hostname.length > hostnameMaxLen ? (e.hostname = '') : (e.hostname = e.hostname.toLowerCase()), b || (e.hostname = toASCII(e.hostname)), (p = e.port ? ':' + e.port : '')
+                    var x = e.hostname || ''
+                    ;(e.host = x + p), (e.href += e.host), b && ((e.hostname = e.hostname.substr(1, e.hostname.length - 2)), '/' !== s[0] && (s = '/' + s))
+                }
+                if (!unsafeProtocol[l])
+                    for (f = 0, m = autoEscape.length; f < m; f++) {
+                        var P = autoEscape[f]
+                        if (-1 !== s.indexOf(P)) {
+                            var D = encodeURIComponent(P)
+                            D === P && (D = escape(P)), (s = s.split(P).join(D))
+                        }
+                    }
+                var O = s.indexOf('#')
+                ;-1 !== O && ((e.hash = s.substr(O)), (s = s.slice(0, O)))
+                var V = s.indexOf('?')
+                if ((-1 !== V ? ((e.search = s.substr(V)), (e.query = s.substr(V + 1)), r && (e.query = parse$1(e.query)), (s = s.slice(0, V))) : r && ((e.search = ''), (e.query = {})), s && (e.pathname = s), slashedProtocol[l] && e.hostname && !e.pathname && (e.pathname = '/'), e.pathname || e.search)) {
+                    p = e.pathname || ''
+                    var I = e.search || ''
+                    e.path = p + I
+                }
+                return (e.href = format(e)), e
+            }
+            function urlFileURLToPath(e) {
+                if ('string' == typeof e) e = new Url().parse(e)
+                else if (!(e instanceof Url)) throw TypeError('The "path" argument must be of type string or an instance of URL. Received type ' + typeof e + String(e))
+                if ('file:' !== e.protocol) throw TypeError('The URL must be of scheme file')
+                return getPathFromURLPosix(e)
+            }
+            function getPathFromURLPosix(e) {
+                let t = e.pathname
+                for (let e = 0; e < t.length; e++)
+                    if ('%' === t[e]) {
+                        let r = 32 | t.codePointAt(e + 2)
+                        if ('2' === t[e + 1] && 102 === r) throw TypeError('must not include encoded / characters')
+                    }
+                return decodeURIComponent(t)
+            }
+            function urlFormat(e) {
+                return isString(e) && (e = parse({}, e)), format(e)
+            }
+            function format(e) {
+                var t = e.auth || ''
+                t && ((t = (t = encodeURIComponent(t)).replace(/%3A/i, ':')), (t += '@'))
+                var r = e.protocol || '',
+                    a = e.pathname || '',
+                    n = e.hash || '',
+                    o = !1,
+                    i = ''
+                e.host ? (o = t + e.host) : e.hostname && ((o = t + (-1 === e.hostname.indexOf(':') ? e.hostname : '[' + this.hostname + ']')), e.port && (o += ':' + e.port)), e.query && isObject(e.query) && Object.keys(e.query).length && (i = stringify(e.query))
+                var s = e.search || (i && '?' + i) || ''
+                return (
+                    r && ':' !== r.substr(-1) && (r += ':'),
+                    e.slashes || ((!r || slashedProtocol[r]) && !1 !== o) ? ((o = '//' + (o || '')), a && '/' !== a.charAt(0) && (a = '/' + a)) : o || (o = ''),
+                    n && '#' !== n.charAt(0) && (n = '#' + n),
+                    s && '?' !== s.charAt(0) && (s = '?' + s),
+                    r +
+                        o +
+                        (a = a.replace(/[?#]/g, function (e) {
+                            return encodeURIComponent(e)
+                        })) +
+                        (s = s.replace('#', '%23')) +
+                        n
+                )
+            }
+            function urlResolve(e, t) {
+                return urlParse(e, !1, !0).resolve(t)
+            }
+            function urlResolveObject(e, t) {
+                return e ? urlParse(e, !1, !0).resolveObject(t) : t
+            }
+            function parseHost(e) {
+                var t = e.host,
+                    r = portPattern.exec(t)
+                r && (':' !== (r = r[0]) && (e.port = r.substr(1)), (t = t.substr(0, t.length - r.length))), t && (e.hostname = t)
+            }
+            ;(Url.prototype.parse = function (e, t, r) {
+                return parse(this, e, t, r)
+            }),
+                (Url.prototype.format = function () {
+                    return format(this)
+                }),
+                (Url.prototype.resolve = function (e) {
+                    return this.resolveObject(urlParse(e, !1, !0)).format()
+                }),
+                (Url.prototype.resolveObject = function (e) {
+                    if (isString(e)) {
+                        var t,
+                            r,
+                            a = new Url()
+                        a.parse(e, !1, !0), (e = a)
+                    }
+                    for (var n = new Url(), o = Object.keys(this), i = 0; i < o.length; i++) {
+                        var s = o[i]
+                        n[s] = this[s]
+                    }
+                    if (((n.hash = e.hash), '' === e.href)) return (n.href = n.format()), n
+                    if (e.slashes && !e.protocol) {
+                        for (var c = Object.keys(e), u = 0; u < c.length; u++) {
+                            var l = c[u]
+                            'protocol' !== l && (n[l] = e[l])
+                        }
+                        return slashedProtocol[n.protocol] && n.hostname && !n.pathname && (n.path = n.pathname = '/'), (n.href = n.format()), n
+                    }
+                    if (e.protocol && e.protocol !== n.protocol) {
+                        if (!slashedProtocol[e.protocol]) {
+                            for (var h = Object.keys(e), f = 0; f < h.length; f++) {
+                                var d = h[f]
+                                n[d] = e[d]
+                            }
+                            return (n.href = n.format()), n
+                        }
+                        if (((n.protocol = e.protocol), e.host || hostlessProtocol[e.protocol])) n.pathname = e.pathname
+                        else {
+                            for (t = (e.pathname || '').split('/'); t.length && !(e.host = t.shift()); );
+                            e.host || (e.host = ''), e.hostname || (e.hostname = ''), '' !== t[0] && t.unshift(''), t.length < 2 && t.unshift(''), (n.pathname = t.join('/'))
+                        }
+                        if (((n.search = e.search), (n.query = e.query), (n.host = e.host || ''), (n.auth = e.auth), (n.hostname = e.hostname || e.host), (n.port = e.port), n.pathname || n.search)) {
+                            var m = n.pathname || '',
+                                p = n.search || ''
+                            n.path = m + p
+                        }
+                        return (n.slashes = n.slashes || e.slashes), (n.href = n.format()), n
+                    }
+                    var v = n.pathname && '/' === n.pathname.charAt(0),
+                        y = e.host || (e.pathname && '/' === e.pathname.charAt(0)),
+                        g = y || v || (n.host && e.pathname),
+                        b = g,
+                        F = (n.pathname && n.pathname.split('/')) || [],
+                        A = n.protocol && !slashedProtocol[n.protocol]
+                    if (((t = (e.pathname && e.pathname.split('/')) || []), A && ((n.hostname = ''), (n.port = null), n.host && ('' === F[0] ? (F[0] = n.host) : F.unshift(n.host)), (n.host = ''), e.protocol && ((e.hostname = null), (e.port = null), e.host && ('' === t[0] ? (t[0] = e.host) : t.unshift(e.host)), (e.host = null)), (g = g && ('' === t[0] || '' === F[0]))), y)) (n.host = e.host || '' === e.host ? e.host : n.host), (n.hostname = e.hostname || '' === e.hostname ? e.hostname : n.hostname), (n.search = e.search), (n.query = e.query), (F = t)
+                    else if (t.length) F || (F = []), F.pop(), (F = F.concat(t)), (n.search = e.search), (n.query = e.query)
+                    else if (!isNullOrUndefined(e.search)) return A && ((n.hostname = n.host = F.shift()), (r = !!(n.host && n.host.indexOf('@') > 0) && n.host.split('@')) && ((n.auth = r.shift()), (n.host = n.hostname = r.shift()))), (n.search = e.search), (n.query = e.query), (isNull(n.pathname) && isNull(n.search)) || (n.path = (n.pathname ? n.pathname : '') + (n.search ? n.search : '')), (n.href = n.format()), n
+                    if (!F.length) return (n.pathname = null), n.search ? (n.path = '/' + n.search) : (n.path = null), (n.href = n.format()), n
+                    for (var w = F.slice(-1)[0], E = ((n.host || e.host || F.length > 1) && ('.' === w || '..' === w)) || '' === w, $ = 0, _ = F.length; _ >= 0; _--) '.' === (w = F[_]) ? F.splice(_, 1) : '..' === w ? (F.splice(_, 1), $++) : $ && (F.splice(_, 1), $--)
+                    if (!g && !b) for (; $--; $) F.unshift('..')
+                    g && '' !== F[0] && (!F[0] || '/' !== F[0].charAt(0)) && F.unshift(''), E && '/' !== F.join('/').substr(-1) && F.push('')
+                    var R = '' === F[0] || (F[0] && '/' === F[0].charAt(0))
+                    return A && ((n.hostname = n.host = R ? '' : F.length ? F.shift() : ''), (r = !!(n.host && n.host.indexOf('@') > 0) && n.host.split('@')) && ((n.auth = r.shift()), (n.host = n.hostname = r.shift()))), (g = g || (n.host && F.length)) && !R && F.unshift(''), F.length ? (n.pathname = F.join('/')) : ((n.pathname = null), (n.path = null)), (isNull(n.pathname) && isNull(n.search)) || (n.path = (n.pathname ? n.pathname : '') + (n.search ? n.search : '')), (n.auth = e.auth || n.auth), (n.slashes = n.slashes || e.slashes), (n.href = n.format()), n
+                }),
+                (Url.prototype.parseHost = function () {
+                    return parseHost(this)
+                })
+            var _polyfillNode_url$1 = Object.freeze({ __proto__: null, URL: URL, URLSearchParams: URLSearchParams, Url: Url, default: _polyfillNode_url, fileURLToPath: urlFileURLToPath, format: urlFormat, parse: urlParse, resolve: urlResolve, resolveObject: urlResolveObject }),
+                require$$0 = getAugmentedNamespace(_polyfillNode_url$1),
+                helpers$3 = {},
+                uri = require$$0,
+                ValidationError = (helpers$3.ValidationError = function (e, t, r, a, n, o) {
+                    if (
+                        (Array.isArray(a)
+                            ? ((this.path = a),
+                              (this.property = a.reduce(function (e, t) {
+                                  return e + makeSuffix(t)
+                              }, 'instance')))
+                            : void 0 !== a && (this.property = a),
+                        e && (this.message = e),
+                        r)
+                    ) {
+                        var i = r.$id || r.id
+                        this.schema = i || r
+                    }
+                    void 0 !== t && (this.instance = t), (this.name = n), (this.argument = o), (this.stack = this.toString())
+                })
+            ValidationError.prototype.toString = function () {
+                return this.property + ' ' + this.message
+            }
+            var ValidatorResult$2 = (helpers$3.ValidatorResult = function (e, t, r, a) {
+                ;(this.instance = e), (this.schema = t), (this.options = r), (this.path = a.path), (this.propertyPath = a.propertyPath), (this.errors = []), (this.throwError = r && r.throwError), (this.throwFirst = r && r.throwFirst), (this.throwAll = r && r.throwAll), (this.disableFormat = r && !0 === r.disableFormat)
+            })
+            function stringizer(e, t) {
+                return t + ': ' + e.toString() + '\n'
+            }
+            function ValidatorResultError$1(e) {
+                Error.captureStackTrace && Error.captureStackTrace(this, ValidatorResultError$1), (this.instance = e.instance), (this.schema = e.schema), (this.options = e.options), (this.errors = e.errors)
+            }
+            ;(ValidatorResult$2.prototype.addError = function (e) {
+                var t
+                if ('string' == typeof e) t = new ValidationError(e, this.instance, this.schema, this.path)
+                else {
+                    if (!e) throw Error('Missing error detail')
+                    if (!e.message) throw Error('Missing error message')
+                    if (!e.name) throw Error('Missing validator type')
+                    t = new ValidationError(e.message, this.instance, this.schema, this.path, e.name, e.argument)
+                }
+                if ((this.errors.push(t), this.throwFirst)) throw new ValidatorResultError$1(this)
+                if (this.throwError) throw t
+                return t
+            }),
+                (ValidatorResult$2.prototype.importErrors = function (e) {
+                    'string' == typeof e || (e && e.validatorType) ? this.addError(e) : e && e.errors && (this.errors = this.errors.concat(e.errors))
+                }),
+                (ValidatorResult$2.prototype.toString = function (e) {
+                    return this.errors.map(stringizer).join('')
+                }),
+                Object.defineProperty(ValidatorResult$2.prototype, 'valid', {
+                    get: function () {
+                        return !this.errors.length
+                    },
+                }),
+                (helpers$3.ValidatorResultError = ValidatorResultError$1),
+                (ValidatorResultError$1.prototype = Error()),
+                (ValidatorResultError$1.prototype.constructor = ValidatorResultError$1),
+                (ValidatorResultError$1.prototype.name = 'Validation Error')
+            var SchemaError$2 = (helpers$3.SchemaError = function e(t, r) {
+                ;(this.message = t), (this.schema = r), Error.call(this, t), Error.captureStackTrace(this, e)
+            })
+            SchemaError$2.prototype = Object.create(Error.prototype, { constructor: { value: SchemaError$2, enumerable: !1 }, name: { value: 'SchemaError', enumerable: !1 } })
+            var SchemaContext$1 = (helpers$3.SchemaContext = function (e, t, r, a, n) {
+                ;(this.schema = e),
+                    (this.options = t),
+                    Array.isArray(r)
+                        ? ((this.path = r),
+                          (this.propertyPath = r.reduce(function (e, t) {
+                              return e + makeSuffix(t)
+                          }, 'instance')))
+                        : (this.propertyPath = r),
+                    (this.base = a),
+                    (this.schemas = n)
+            })
+            ;(SchemaContext$1.prototype.resolve = function (e) {
+                return uri.resolve(this.base, e)
+            }),
+                (SchemaContext$1.prototype.makeChild = function (e, t) {
+                    var r = void 0 === t ? this.path : this.path.concat([t]),
+                        a = e.$id || e.id,
+                        n = uri.resolve(this.base, a || ''),
+                        o = new SchemaContext$1(e, this.options, r, n, Object.create(this.schemas))
+                    return a && !o.schemas[n] && (o.schemas[n] = e), o
+                })
+            var FORMAT_REGEXPS = (helpers$3.FORMAT_REGEXPS = {
+                'date-time': /^\d{4}-(?:0[0-9]{1}|1[0-2]{1})-(3[01]|0[1-9]|[12][0-9])[tT ](2[0-4]|[01][0-9]):([0-5][0-9]):(60|[0-5][0-9])(\.\d+)?([zZ]|[+-]([0-5][0-9]):(60|[0-5][0-9]))$/,
+                date: /^\d{4}-(?:0[0-9]{1}|1[0-2]{1})-(3[01]|0[1-9]|[12][0-9])$/,
+                time: /^(2[0-4]|[01][0-9]):([0-5][0-9]):(60|[0-5][0-9])$/,
+                duration: /P(T\d+(H(\d+M(\d+S)?)?|M(\d+S)?|S)|\d+(D|M(\d+D)?|Y(\d+M(\d+D)?)?)(T\d+(H(\d+M(\d+S)?)?|M(\d+S)?|S))?|\d+W)/i,
+                email: /^(?:[\w\!\#\$\%\&\'\*\+\-\/\=\?\^\`\{\|\}\~]+\.)*[\w\!\#\$\%\&\'\*\+\-\/\=\?\^\`\{\|\}\~]+@(?:(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!\.)){0,61}[a-zA-Z0-9]?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9\-](?!$)){0,61}[a-zA-Z0-9]?)|(?:\[(?:(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\.){3}(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\]))$/,
+                'idn-email': /^("(?:[!#-\[\]-\u{10FFFF}]|\\[\t -\u{10FFFF}])*"|[!#-'*+\-/-9=?A-Z\^-\u{10FFFF}](?:\.?[!#-'*+\-/-9=?A-Z\^-\u{10FFFF}])*)@([!#-'*+\-/-9=?A-Z\^-\u{10FFFF}](?:\.?[!#-'*+\-/-9=?A-Z\^-\u{10FFFF}])*|\[[!-Z\^-\u{10FFFF}]*\])$/u,
+                'ip-address': /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
+                ipv6: /^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$/,
+                uri: /^[a-zA-Z][a-zA-Z0-9+.-]*:[^\s]*$/,
+                'uri-reference': /^(((([A-Za-z][+\-.0-9A-Za-z]*(:%[0-9A-Fa-f]{2}|:[!$&-.0-;=?-Z_a-z~]|[/?])|\?)(%[0-9A-Fa-f]{2}|[!$&-;=?-Z_a-z~])*|([A-Za-z][+\-.0-9A-Za-z]*:?)?)|([A-Za-z][+\-.0-9A-Za-z]*:)?\/((%[0-9A-Fa-f]{2}|\/((%[0-9A-Fa-f]{2}|[!$&-.0-9;=A-Z_a-z~])+|(\[(([Vv][0-9A-Fa-f]+\.[!$&-.0-;=A-Z_a-z~]+)?|[.0-:A-Fa-f]+)\])?)(:\d*)?[/?]|[!$&-.0-;=?-Z_a-z~])(%[0-9A-Fa-f]{2}|[!$&-;=?-Z_a-z~])*|(\/((%[0-9A-Fa-f]{2}|[!$&-.0-9;=A-Z_a-z~])+|(\[(([Vv][0-9A-Fa-f]+\.[!$&-.0-;=A-Z_a-z~]+)?|[.0-:A-Fa-f]+)\])?)(:\d*)?)?))#(%[0-9A-Fa-f]{2}|[!$&-;=?-Z_a-z~])*|(([A-Za-z][+\-.0-9A-Za-z]*)?%[0-9A-Fa-f]{2}|[!$&-.0-9;=@_~]|[A-Za-z][+\-.0-9A-Za-z]*[!$&-*,;=@_~])(%[0-9A-Fa-f]{2}|[!$&-.0-9;=@-Z_a-z~])*((([/?](%[0-9A-Fa-f]{2}|[!$&-;=?-Z_a-z~])*)?#|[/?])(%[0-9A-Fa-f]{2}|[!$&-;=?-Z_a-z~])*)?|([A-Za-z][+\-.0-9A-Za-z]*(:%[0-9A-Fa-f]{2}|:[!$&-.0-;=?-Z_a-z~]|[/?])|\?)(%[0-9A-Fa-f]{2}|[!$&-;=?-Z_a-z~])*|([A-Za-z][+\-.0-9A-Za-z]*:)?\/((%[0-9A-Fa-f]{2}|\/((%[0-9A-Fa-f]{2}|[!$&-.0-9;=A-Z_a-z~])+|(\[(([Vv][0-9A-Fa-f]+\.[!$&-.0-;=A-Z_a-z~]+)?|[.0-:A-Fa-f]+)\])?)(:\d*)?[/?]|[!$&-.0-;=?-Z_a-z~])(%[0-9A-Fa-f]{2}|[!$&-;=?-Z_a-z~])*|\/((%[0-9A-Fa-f]{2}|[!$&-.0-9;=A-Z_a-z~])+(:\d*)?|(\[(([Vv][0-9A-Fa-f]+\.[!$&-.0-;=A-Z_a-z~]+)?|[.0-:A-Fa-f]+)\])?:\d*|\[(([Vv][0-9A-Fa-f]+\.[!$&-.0-;=A-Z_a-z~]+)?|[.0-:A-Fa-f]+)\])?)?|[A-Za-z][+\-.0-9A-Za-z]*:?)?$/,
+                iri: /^[a-zA-Z][a-zA-Z0-9+.-]*:[^\s]*$/,
+                'iri-reference': /^(((([A-Za-z][+\-.0-9A-Za-z]*(:%[0-9A-Fa-f]{2}|:[!$&-.0-;=?-Z_a-z~-\u{10FFFF}]|[/?])|\?)(%[0-9A-Fa-f]{2}|[!$&-;=?-Z_a-z~-\u{10FFFF}])*|([A-Za-z][+\-.0-9A-Za-z]*:?)?)|([A-Za-z][+\-.0-9A-Za-z]*:)?\/((%[0-9A-Fa-f]{2}|\/((%[0-9A-Fa-f]{2}|[!$&-.0-9;=A-Z_a-z~-\u{10FFFF}])+|(\[(([Vv][0-9A-Fa-f]+\.[!$&-.0-;=A-Z_a-z~-\u{10FFFF}]+)?|[.0-:A-Fa-f]+)\])?)(:\d*)?[/?]|[!$&-.0-;=?-Z_a-z~-\u{10FFFF}])(%[0-9A-Fa-f]{2}|[!$&-;=?-Z_a-z~-\u{10FFFF}])*|(\/((%[0-9A-Fa-f]{2}|[!$&-.0-9;=A-Z_a-z~-\u{10FFFF}])+|(\[(([Vv][0-9A-Fa-f]+\.[!$&-.0-;=A-Z_a-z~-\u{10FFFF}]+)?|[.0-:A-Fa-f]+)\])?)(:\d*)?)?))#(%[0-9A-Fa-f]{2}|[!$&-;=?-Z_a-z~-\u{10FFFF}])*|(([A-Za-z][+\-.0-9A-Za-z]*)?%[0-9A-Fa-f]{2}|[!$&-.0-9;=@_~-\u{10FFFF}]|[A-Za-z][+\-.0-9A-Za-z]*[!$&-*,;=@_~-\u{10FFFF}])(%[0-9A-Fa-f]{2}|[!$&-.0-9;=@-Z_a-z~-\u{10FFFF}])*((([/?](%[0-9A-Fa-f]{2}|[!$&-;=?-Z_a-z~-\u{10FFFF}])*)?#|[/?])(%[0-9A-Fa-f]{2}|[!$&-;=?-Z_a-z~-\u{10FFFF}])*)?|([A-Za-z][+\-.0-9A-Za-z]*(:%[0-9A-Fa-f]{2}|:[!$&-.0-;=?-Z_a-z~-\u{10FFFF}]|[/?])|\?)(%[0-9A-Fa-f]{2}|[!$&-;=?-Z_a-z~-\u{10FFFF}])*|([A-Za-z][+\-.0-9A-Za-z]*:)?\/((%[0-9A-Fa-f]{2}|\/((%[0-9A-Fa-f]{2}|[!$&-.0-9;=A-Z_a-z~-\u{10FFFF}])+|(\[(([Vv][0-9A-Fa-f]+\.[!$&-.0-;=A-Z_a-z~-\u{10FFFF}]+)?|[.0-:A-Fa-f]+)\])?)(:\d*)?[/?]|[!$&-.0-;=?-Z_a-z~-\u{10FFFF}])(%[0-9A-Fa-f]{2}|[!$&-;=?-Z_a-z~-\u{10FFFF}])*|\/((%[0-9A-Fa-f]{2}|[!$&-.0-9;=A-Z_a-z~-\u{10FFFF}])+(:\d*)?|(\[(([Vv][0-9A-Fa-f]+\.[!$&-.0-;=A-Z_a-z~-\u{10FFFF}]+)?|[.0-:A-Fa-f]+)\])?:\d*|\[(([Vv][0-9A-Fa-f]+\.[!$&-.0-;=A-Z_a-z~-\u{10FFFF}]+)?|[.0-:A-Fa-f]+)\])?)?|[A-Za-z][+\-.0-9A-Za-z]*:?)?$/u,
+                uuid: /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i,
+                'uri-template': /(%[0-9a-f]{2}|[!#$&(-;=?@\[\]_a-z~]|\{[!#&+,./;=?@|]?(%[0-9a-f]{2}|[0-9_a-z])(\.?(%[0-9a-f]{2}|[0-9_a-z]))*(:[1-9]\d{0,3}|\*)?(,(%[0-9a-f]{2}|[0-9_a-z])(\.?(%[0-9a-f]{2}|[0-9_a-z]))*(:[1-9]\d{0,3}|\*)?)*\})*/iu,
+                'json-pointer': /^(\/([\x00-\x2e0-@\[-}\x7f]|~[01])*)*$/iu,
+                'relative-json-pointer': /^\d+(#|(\/([\x00-\x2e0-@\[-}\x7f]|~[01])*)*)$/iu,
+                hostname: /^(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?$/,
+                'host-name': /^(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?$/,
+                'utc-millisec': function (e) {
+                    return 'string' == typeof e && parseFloat(e) === parseInt(e, 10) && !isNaN(e)
+                },
+                regex: function (e) {
+                    var t = !0
+                    try {
+                        RegExp(e)
+                    } catch (e) {
+                        t = !1
+                    }
+                    return t
+                },
+                style: /[\r\n\t ]*[^\r\n\t ][^:]*:[\r\n\t ]*[^\r\n\t ;]*[\r\n\t ]*;?/,
+                color: /^(#?([0-9A-Fa-f]{3}){1,2}\b|aqua|black|blue|fuchsia|gray|green|lime|maroon|navy|olive|orange|purple|red|silver|teal|white|yellow|(rgb\(\s*\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\b\s*,\s*\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\b\s*,\s*\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\b\s*\))|(rgb\(\s*(\d?\d%|100%)+\s*,\s*(\d?\d%|100%)+\s*,\s*(\d?\d%|100%)+\s*\)))$/,
+                phone: /^\+(?:[0-9] ?){6,14}[0-9]$/,
+                alpha: /^[a-zA-Z]+$/,
+                alphanumeric: /^[a-zA-Z0-9]+$/,
+            })
+            ;(FORMAT_REGEXPS.regexp = FORMAT_REGEXPS.regex),
+                (FORMAT_REGEXPS.pattern = FORMAT_REGEXPS.regex),
+                (FORMAT_REGEXPS.ipv4 = FORMAT_REGEXPS['ip-address']),
+                (helpers$3.isFormat = function (e, t, r) {
+                    if ('string' == typeof e && void 0 !== FORMAT_REGEXPS[t]) {
+                        if (FORMAT_REGEXPS[t] instanceof RegExp) return FORMAT_REGEXPS[t].test(e)
+                        if ('function' == typeof FORMAT_REGEXPS[t]) return FORMAT_REGEXPS[t](e)
+                    } else if (r && r.customFormats && 'function' == typeof r.customFormats[t]) return r.customFormats[t](e)
+                    return !0
+                })
+            var makeSuffix = (helpers$3.makeSuffix = function (e) {
+                return (e = e.toString()).match(/[.\s\[\]]/) || e.match(/^[\d]/) ? (e.match(/^\d+$/) ? '[' + e + ']' : '[' + JSON.stringify(e) + ']') : '.' + e
+            })
+            function deepMerger(e, t, r, a) {
+                'object' == typeof r ? (t[a] = deepMerge(e[a], r)) : -1 === e.indexOf(r) && t.push(r)
+            }
+            function copyist(e, t, r) {
+                t[r] = e[r]
+            }
+            function copyistWithDeepMerge(e, t, r, a) {
+                'object' == typeof t[a] && t[a] && e[a] ? (r[a] = deepMerge(e[a], t[a])) : (r[a] = t[a])
+            }
+            function deepMerge(e, t) {
+                var r = Array.isArray(t),
+                    a = (r && []) || {}
+                return r ? ((e = e || []), (a = a.concat(e)), t.forEach(deepMerger.bind(null, e, a))) : (e && 'object' == typeof e && Object.keys(e).forEach(copyist.bind(null, e, a)), Object.keys(t).forEach(copyistWithDeepMerge.bind(null, e, t, a))), a
+            }
+            function pathEncoder(e) {
+                return '/' + encodeURIComponent(e).replace(/~/g, '%7E')
+            }
+            ;(helpers$3.deepCompareStrict = function e(t, r) {
+                if (typeof t != typeof r) return !1
+                if (Array.isArray(t))
+                    return (
+                        !!Array.isArray(r) &&
+                        t.length === r.length &&
+                        t.every(function (a, n) {
+                            return e(t[n], r[n])
+                        })
+                    )
+                if ('object' == typeof t) {
+                    if (!t || !r) return t === r
+                    var a = Object.keys(t),
+                        n = Object.keys(r)
+                    return (
+                        a.length === n.length &&
+                        a.every(function (a) {
+                            return e(t[a], r[a])
+                        })
+                    )
+                }
+                return t === r
+            }),
+                (helpers$3.deepMerge = deepMerge),
+                (helpers$3.objectGetPath = function (e, t) {
+                    for (var r, a = t.split('/').slice(1); 'string' == typeof (r = a.shift()); ) {
+                        var n = decodeURIComponent(r.replace(/~0/, '~').replace(/~1/g, '/'))
+                        if (!(n in e)) return
+                        e = e[n]
+                    }
+                    return e
+                }),
+                (helpers$3.encodePath = function (e) {
+                    return e.map(pathEncoder).join('')
+                }),
+                (helpers$3.getDecimalPlaces = function (e) {
+                    var t = 0
+                    if (isNaN(e)) return t
+                    'number' != typeof e && (e = Number(e))
+                    var r = e.toString().split('e')
+                    if (2 === r.length) {
+                        if ('-' !== r[1][0]) return t
+                        t = Number(r[1].slice(1))
+                    }
+                    var a = r[0].split('.')
+                    return 2 === a.length && (t += a[1].length), t
+                }),
+                (helpers$3.isSchema = function (e) {
+                    return ('object' == typeof e && e) || 'boolean' == typeof e
+                })
+            var helpers$2 = helpers$3,
+                ValidatorResult$1 = helpers$2.ValidatorResult,
+                SchemaError$1 = helpers$2.SchemaError,
+                attribute$1 = { ignoreProperties: { id: !0, default: !0, description: !0, title: !0, additionalItems: !0, then: !0, else: !0, $schema: !0, $ref: !0, extends: !0 } },
+                validators = (attribute$1.validators = {})
+            function testSchemaNoThrow(e, t, r, a, n) {
+                var o = t.throwError,
+                    i = t.throwAll
+                ;(t.throwError = !1), (t.throwAll = !1)
+                var s = this.validateSchema(e, n, t, r)
+                return (t.throwError = o), (t.throwAll = i), !s.valid && a instanceof Function && a(s), s.valid
+            }
+            function getEnumerableProperty(e, t) {
+                if (Object.hasOwnProperty.call(e, t)) return e[t]
+                if (t in e) for (; (e = Object.getPrototypeOf(e)); ) if (Object.propertyIsEnumerable.call(e, t)) return e[t]
+            }
+            function testAdditionalProperty(e, t, r, a, n, o) {
+                if (this.types.object(e) && (!t.properties || void 0 === t.properties[n]))
+                    if (!1 === t.additionalProperties) o.addError({ name: 'additionalProperties', argument: n, message: 'is not allowed to have the additional property ' + JSON.stringify(n) })
+                    else {
+                        var i = t.additionalProperties || {}
+                        'function' == typeof r.preValidateProperty && r.preValidateProperty(e, n, i, r, a)
+                        var s = this.validateSchema(e[n], i, r, a.makeChild(i, n))
+                        s.instance !== o.instance[n] && (o.instance[n] = s.instance), o.importErrors(s)
+                    }
+            }
+            ;(validators.type = function (e, t, r, a) {
+                if (void 0 === e) return null
+                var n = new ValidatorResult$1(e, t, r, a),
+                    o = Array.isArray(t.type) ? t.type : [t.type]
+                if (!o.some(this.testType.bind(this, e, t, r, a))) {
+                    var i = o.map(function (e) {
+                        if (e) {
+                            var t = e.$id || e.id
+                            return t ? '<' + t + '>' : e + ''
+                        }
+                    })
+                    n.addError({ name: 'type', argument: i, message: 'is not of a type(s) ' + i })
+                }
+                return n
+            }),
+                (validators.anyOf = function (e, t, r, a) {
+                    if (void 0 === e) return null
+                    var n = new ValidatorResult$1(e, t, r, a),
+                        o = new ValidatorResult$1(e, t, r, a)
+                    if (!Array.isArray(t.anyOf)) throw new SchemaError$1('anyOf must be an array')
+                    if (
+                        !t.anyOf.some(
+                            testSchemaNoThrow.bind(this, e, r, a, function (e) {
+                                o.importErrors(e)
+                            })
+                        )
+                    ) {
+                        var i = t.anyOf.map(function (e, t) {
+                            var r = e.$id || e.id
+                            return r ? '<' + r + '>' : (e.title && JSON.stringify(e.title)) || (e.$ref && '<' + e.$ref + '>') || '[subschema ' + t + ']'
+                        })
+                        r.nestedErrors && n.importErrors(o), n.addError({ name: 'anyOf', argument: i, message: 'is not any of ' + i.join(',') })
+                    }
+                    return n
+                }),
+                (validators.allOf = function (e, t, r, a) {
+                    if (void 0 === e) return null
+                    if (!Array.isArray(t.allOf)) throw new SchemaError$1('allOf must be an array')
+                    var n = new ValidatorResult$1(e, t, r, a),
+                        o = this
+                    return (
+                        t.allOf.forEach(function (t, i) {
+                            var s = o.validateSchema(e, t, r, a)
+                            if (!s.valid) {
+                                var c = t.$id || t.id || (t.title && JSON.stringify(t.title)) || (t.$ref && '<' + t.$ref + '>') || '[subschema ' + i + ']'
+                                n.addError({ name: 'allOf', argument: { id: c, length: s.errors.length, valid: s }, message: 'does not match allOf schema ' + c + ' with ' + s.errors.length + ' error[s]:' }), n.importErrors(s)
+                            }
+                        }),
+                        n
+                    )
+                }),
+                (validators.oneOf = function (e, t, r, a) {
+                    if (void 0 === e) return null
+                    if (!Array.isArray(t.oneOf)) throw new SchemaError$1('oneOf must be an array')
+                    var n = new ValidatorResult$1(e, t, r, a),
+                        o = new ValidatorResult$1(e, t, r, a),
+                        i = t.oneOf.filter(
+                            testSchemaNoThrow.bind(this, e, r, a, function (e) {
+                                o.importErrors(e)
+                            })
+                        ).length,
+                        s = t.oneOf.map(function (e, t) {
+                            return e.$id || e.id || (e.title && JSON.stringify(e.title)) || (e.$ref && '<' + e.$ref + '>') || '[subschema ' + t + ']'
+                        })
+                    return 1 !== i && (r.nestedErrors && n.importErrors(o), n.addError({ name: 'oneOf', argument: s, message: 'is not exactly one from ' + s.join(',') })), n
+                }),
+                (validators.if = function (e, t, r, a) {
+                    if (void 0 === e) return null
+                    if (!helpers$2.isSchema(t.if)) throw Error('Expected "if" keyword to be a schema')
+                    var n,
+                        o = testSchemaNoThrow.call(this, e, r, a, null, t.if),
+                        i = new ValidatorResult$1(e, t, r, a)
+                    if (o) {
+                        if (void 0 === t.then) return
+                        if (!helpers$2.isSchema(t.then)) throw Error('Expected "then" keyword to be a schema')
+                        ;(n = this.validateSchema(e, t.then, r, a.makeChild(t.then))), i.importErrors(n)
+                    } else {
+                        if (void 0 === t.else) return
+                        if (!helpers$2.isSchema(t.else)) throw Error('Expected "else" keyword to be a schema')
+                        ;(n = this.validateSchema(e, t.else, r, a.makeChild(t.else))), i.importErrors(n)
+                    }
+                    return i
+                }),
+                (validators.propertyNames = function (e, t, r, a) {
+                    if (this.types.object(e)) {
+                        var n = new ValidatorResult$1(e, t, r, a),
+                            o = void 0 !== t.propertyNames ? t.propertyNames : {}
+                        if (!helpers$2.isSchema(o)) throw new SchemaError$1('Expected "propertyNames" to be a schema (object or boolean)')
+                        for (var i in e)
+                            if (void 0 !== getEnumerableProperty(e, i)) {
+                                var s = this.validateSchema(i, o, r, a.makeChild(o))
+                                n.importErrors(s)
+                            }
+                        return n
+                    }
+                }),
+                (validators.properties = function (e, t, r, a) {
+                    if (this.types.object(e)) {
+                        var n = new ValidatorResult$1(e, t, r, a),
+                            o = t.properties || {}
+                        for (var i in o) {
+                            var s = o[i]
+                            if (void 0 !== s) {
+                                if (null === s) throw new SchemaError$1('Unexpected null, expected schema in "properties"')
+                                'function' == typeof r.preValidateProperty && r.preValidateProperty(e, i, s, r, a)
+                                var c = getEnumerableProperty(e, i),
+                                    u = this.validateSchema(c, s, r, a.makeChild(s, i))
+                                u.instance !== n.instance[i] && (n.instance[i] = u.instance), n.importErrors(u)
+                            }
+                        }
+                        return n
+                    }
+                }),
+                (validators.patternProperties = function (e, t, r, a) {
+                    if (this.types.object(e)) {
+                        var n = new ValidatorResult$1(e, t, r, a),
+                            o = t.patternProperties || {}
+                        for (var i in e) {
+                            var s = !0
+                            for (var c in o) {
+                                var u = o[c]
+                                if (void 0 !== u) {
+                                    if (null === u) throw new SchemaError$1('Unexpected null, expected schema in "patternProperties"')
+                                    try {
+                                        var l = RegExp(c, 'u')
+                                    } catch (e) {
+                                        l = RegExp(c)
+                                    }
+                                    if (l.test(i)) {
+                                        ;(s = !1), 'function' == typeof r.preValidateProperty && r.preValidateProperty(e, i, u, r, a)
+                                        var h = this.validateSchema(e[i], u, r, a.makeChild(u, i))
+                                        h.instance !== n.instance[i] && (n.instance[i] = h.instance), n.importErrors(h)
+                                    }
+                                }
+                            }
+                            s && testAdditionalProperty.call(this, e, t, r, a, i, n)
+                        }
+                        return n
+                    }
+                }),
+                (validators.additionalProperties = function (e, t, r, a) {
+                    if (this.types.object(e)) {
+                        if (t.patternProperties) return null
+                        var n = new ValidatorResult$1(e, t, r, a)
+                        for (var o in e) testAdditionalProperty.call(this, e, t, r, a, o, n)
+                        return n
+                    }
+                }),
+                (validators.minProperties = function (e, t, r, a) {
+                    if (this.types.object(e)) {
+                        var n = new ValidatorResult$1(e, t, r, a)
+                        return Object.keys(e).length >= t.minProperties || n.addError({ name: 'minProperties', argument: t.minProperties, message: 'does not meet minimum property length of ' + t.minProperties }), n
+                    }
+                }),
+                (validators.maxProperties = function (e, t, r, a) {
+                    if (this.types.object(e)) {
+                        var n = new ValidatorResult$1(e, t, r, a)
+                        return Object.keys(e).length <= t.maxProperties || n.addError({ name: 'maxProperties', argument: t.maxProperties, message: 'does not meet maximum property length of ' + t.maxProperties }), n
+                    }
+                }),
+                (validators.items = function (e, t, r, a) {
+                    var n = this
+                    if (this.types.array(e) && void 0 !== t.items) {
+                        var o = new ValidatorResult$1(e, t, r, a)
+                        return (
+                            e.every(function (e, i) {
+                                if (Array.isArray(t.items)) var s = void 0 === t.items[i] ? t.additionalItems : t.items[i]
+                                else s = t.items
+                                if (void 0 === s) return !0
+                                if (!1 === s) return o.addError({ name: 'items', message: 'additionalItems not permitted' }), !1
+                                var c = n.validateSchema(e, s, r, a.makeChild(s, i))
+                                return c.instance !== o.instance[i] && (o.instance[i] = c.instance), o.importErrors(c), !0
+                            }),
+                            o
+                        )
+                    }
+                }),
+                (validators.contains = function (e, t, r, a) {
+                    var n = this
+                    if (this.types.array(e) && void 0 !== t.contains) {
+                        if (!helpers$2.isSchema(t.contains)) throw Error('Expected "contains" keyword to be a schema')
+                        var o = new ValidatorResult$1(e, t, r, a)
+                        return (
+                            !1 ===
+                                e.some(function (e, o) {
+                                    return 0 === n.validateSchema(e, t.contains, r, a.makeChild(t.contains, o)).errors.length
+                                }) && o.addError({ name: 'contains', argument: t.contains, message: 'must contain an item matching given schema' }),
+                            o
+                        )
+                    }
+                }),
+                (validators.minimum = function (e, t, r, a) {
+                    if (this.types.number(e)) {
+                        var n = new ValidatorResult$1(e, t, r, a)
+                        return t.exclusiveMinimum && !0 === t.exclusiveMinimum ? e > t.minimum || n.addError({ name: 'minimum', argument: t.minimum, message: 'must be greater than ' + t.minimum }) : e >= t.minimum || n.addError({ name: 'minimum', argument: t.minimum, message: 'must be greater than or equal to ' + t.minimum }), n
+                    }
+                }),
+                (validators.maximum = function (e, t, r, a) {
+                    if (this.types.number(e)) {
+                        var n = new ValidatorResult$1(e, t, r, a)
+                        return t.exclusiveMaximum && !0 === t.exclusiveMaximum ? e < t.maximum || n.addError({ name: 'maximum', argument: t.maximum, message: 'must be less than ' + t.maximum }) : e <= t.maximum || n.addError({ name: 'maximum', argument: t.maximum, message: 'must be less than or equal to ' + t.maximum }), n
+                    }
+                }),
+                (validators.exclusiveMinimum = function (e, t, r, a) {
+                    if ('boolean' != typeof t.exclusiveMinimum && this.types.number(e)) {
+                        var n = new ValidatorResult$1(e, t, r, a)
+                        return e > t.exclusiveMinimum || n.addError({ name: 'exclusiveMinimum', argument: t.exclusiveMinimum, message: 'must be strictly greater than ' + t.exclusiveMinimum }), n
+                    }
+                }),
+                (validators.exclusiveMaximum = function (e, t, r, a) {
+                    if ('boolean' != typeof t.exclusiveMaximum && this.types.number(e)) {
+                        var n = new ValidatorResult$1(e, t, r, a)
+                        return e < t.exclusiveMaximum || n.addError({ name: 'exclusiveMaximum', argument: t.exclusiveMaximum, message: 'must be strictly less than ' + t.exclusiveMaximum }), n
+                    }
+                })
+            var validateMultipleOfOrDivisbleBy = function (e, t, r, a, n, o) {
+                if (this.types.number(e)) {
+                    var i = t[n]
+                    if (0 == i) throw new SchemaError$1(n + ' cannot be zero')
+                    var s = new ValidatorResult$1(e, t, r, a),
+                        c = helpers$2.getDecimalPlaces(e),
+                        u = helpers$2.getDecimalPlaces(i),
+                        l = Math.pow(10, Math.max(c, u))
+                    return Math.round(e * l) % Math.round(i * l) != 0 && s.addError({ name: n, argument: i, message: o + JSON.stringify(i) }), s
+                }
+            }
+            function testArrays(e, t, r) {
+                var a,
+                    n = r.length
+                for (a = t + 1; a < n; a++) if (helpers$2.deepCompareStrict(e, r[a])) return !1
+                return !0
+            }
+            ;(validators.multipleOf = function (e, t, r, a) {
+                return validateMultipleOfOrDivisbleBy.call(this, e, t, r, a, 'multipleOf', 'is not a multiple of (divisible by) ')
+            }),
+                (validators.divisibleBy = function (e, t, r, a) {
+                    return validateMultipleOfOrDivisbleBy.call(this, e, t, r, a, 'divisibleBy', 'is not divisible by (multiple of) ')
+                }),
+                (validators.required = function (e, t, r, a) {
+                    var n = new ValidatorResult$1(e, t, r, a)
+                    return (
+                        void 0 === e && !0 === t.required
+                            ? n.addError({ name: 'required', message: 'is required' })
+                            : this.types.object(e) &&
+                              Array.isArray(t.required) &&
+                              t.required.forEach(function (t) {
+                                  void 0 === getEnumerableProperty(e, t) && n.addError({ name: 'required', argument: t, message: 'requires property ' + JSON.stringify(t) })
+                              }),
+                        n
+                    )
+                }),
+                (validators.pattern = function (e, t, r, a) {
+                    if (this.types.string(e)) {
+                        var n = new ValidatorResult$1(e, t, r, a),
+                            o = t.pattern
+                        try {
+                            var i = RegExp(o, 'u')
+                        } catch (e) {
+                            i = RegExp(o)
+                        }
+                        return e.match(i) || n.addError({ name: 'pattern', argument: t.pattern, message: 'does not match pattern ' + JSON.stringify(t.pattern.toString()) }), n
+                    }
+                }),
+                (validators.format = function (e, t, r, a) {
+                    if (void 0 !== e) {
+                        var n = new ValidatorResult$1(e, t, r, a)
+                        return n.disableFormat || helpers$2.isFormat(e, t.format, this) || n.addError({ name: 'format', argument: t.format, message: 'does not conform to the ' + JSON.stringify(t.format) + ' format' }), n
+                    }
+                }),
+                (validators.minLength = function (e, t, r, a) {
+                    if (this.types.string(e)) {
+                        var n = new ValidatorResult$1(e, t, r, a),
+                            o = e.match(/[\uDC00-\uDFFF]/g)
+                        return e.length - (o ? o.length : 0) >= t.minLength || n.addError({ name: 'minLength', argument: t.minLength, message: 'does not meet minimum length of ' + t.minLength }), n
+                    }
+                }),
+                (validators.maxLength = function (e, t, r, a) {
+                    if (this.types.string(e)) {
+                        var n = new ValidatorResult$1(e, t, r, a),
+                            o = e.match(/[\uDC00-\uDFFF]/g)
+                        return e.length - (o ? o.length : 0) <= t.maxLength || n.addError({ name: 'maxLength', argument: t.maxLength, message: 'does not meet maximum length of ' + t.maxLength }), n
+                    }
+                }),
+                (validators.minItems = function (e, t, r, a) {
+                    if (this.types.array(e)) {
+                        var n = new ValidatorResult$1(e, t, r, a)
+                        return e.length >= t.minItems || n.addError({ name: 'minItems', argument: t.minItems, message: 'does not meet minimum length of ' + t.minItems }), n
+                    }
+                }),
+                (validators.maxItems = function (e, t, r, a) {
+                    if (this.types.array(e)) {
+                        var n = new ValidatorResult$1(e, t, r, a)
+                        return e.length <= t.maxItems || n.addError({ name: 'maxItems', argument: t.maxItems, message: 'does not meet maximum length of ' + t.maxItems }), n
+                    }
+                }),
+                (validators.uniqueItems = function (e, t, r, a) {
+                    if (!0 === t.uniqueItems && this.types.array(e)) {
+                        var n = new ValidatorResult$1(e, t, r, a)
+                        return e.every(testArrays) || n.addError({ name: 'uniqueItems', message: 'contains duplicate item' }), n
+                    }
+                }),
+                (validators.dependencies = function (e, t, r, a) {
+                    if (this.types.object(e)) {
+                        var n = new ValidatorResult$1(e, t, r, a)
+                        for (var o in t.dependencies)
+                            if (void 0 !== e[o]) {
+                                var i = t.dependencies[o],
+                                    s = a.makeChild(i, o)
+                                if (('string' == typeof i && (i = [i]), Array.isArray(i)))
+                                    i.forEach(function (t) {
+                                        void 0 === e[t] && n.addError({ name: 'dependencies', argument: s.propertyPath, message: 'property ' + t + ' not found, required by ' + s.propertyPath })
+                                    })
+                                else {
+                                    var c = this.validateSchema(e, i, r, s)
+                                    n.instance !== c.instance && (n.instance = c.instance), c && c.errors.length && (n.addError({ name: 'dependencies', argument: s.propertyPath, message: 'does not meet dependency required by ' + s.propertyPath }), n.importErrors(c))
+                                }
+                            }
+                        return n
+                    }
+                }),
+                (validators.enum = function (e, t, r, a) {
+                    if (void 0 === e) return null
+                    if (!Array.isArray(t.enum)) throw new SchemaError$1('enum expects an array', t)
+                    var n = new ValidatorResult$1(e, t, r, a)
+                    return t.enum.some(helpers$2.deepCompareStrict.bind(null, e)) || n.addError({ name: 'enum', argument: t.enum, message: 'is not one of enum values: ' + t.enum.map(String).join(',') }), n
+                }),
+                (validators.const = function (e, t, r, a) {
+                    if (void 0 === e) return null
+                    var n = new ValidatorResult$1(e, t, r, a)
+                    return helpers$2.deepCompareStrict(t.const, e) || n.addError({ name: 'const', argument: t.const, message: 'does not exactly match expected constant: ' + t.const }), n
+                }),
+                (validators.not = validators.disallow =
+                    function (e, t, r, a) {
+                        var n = this
+                        if (void 0 === e) return null
+                        var o = new ValidatorResult$1(e, t, r, a),
+                            i = t.not || t.disallow
+                        return i
+                            ? (Array.isArray(i) || (i = [i]),
+                              i.forEach(function (i) {
+                                  if (n.testType(e, t, r, a, i)) {
+                                      var s = (i && (i.$id || i.id)) || i
+                                      o.addError({ name: 'not', argument: s, message: 'is of prohibited type ' + s })
+                                  }
+                              }),
+                              o)
+                            : null
+                    })
+            var attribute_1 = attribute$1,
+                scan = {},
+                urilib$1 = require$$0,
+                helpers$1 = helpers$3
+            function SchemaScanResult(e, t) {
+                ;(this.id = e), (this.ref = t)
+            }
+            ;(scan.SchemaScanResult = SchemaScanResult),
+                (scan.scan = function (e, t) {
+                    function r(e, t) {
+                        if (t && 'object' == typeof t) {
+                            if (t.$ref) {
+                                var s = urilib$1.resolve(e, t.$ref)
+                                return void (i[s] = i[s] ? i[s] + 1 : 0)
+                            }
+                            var c = t.$id || t.id,
+                                u = c ? urilib$1.resolve(e, c) : e
+                            if (u) {
+                                if ((0 > u.indexOf('#') && (u += '#'), o[u])) {
+                                    if (!helpers$1.deepCompareStrict(o[u], t)) throw Error('Schema <' + u + '> already exists with different definition')
+                                    return o[u]
+                                }
+                                ;(o[u] = t), '#' == u[u.length - 1] && (o[u.substring(0, u.length - 1)] = t)
+                            }
+                            a(u + '/items', Array.isArray(t.items) ? t.items : [t.items]), a(u + '/extends', Array.isArray(t.extends) ? t.extends : [t.extends]), r(u + '/additionalItems', t.additionalItems), n(u + '/properties', t.properties), r(u + '/additionalProperties', t.additionalProperties), n(u + '/definitions', t.definitions), n(u + '/patternProperties', t.patternProperties), n(u + '/dependencies', t.dependencies), a(u + '/disallow', t.disallow), a(u + '/allOf', t.allOf), a(u + '/anyOf', t.anyOf), a(u + '/oneOf', t.oneOf), r(u + '/not', t.not)
+                        }
+                    }
+                    function a(e, t) {
+                        if (Array.isArray(t)) for (var a = 0; a < t.length; a++) r(e + '/' + a, t[a])
+                    }
+                    function n(e, t) {
+                        if (t && 'object' == typeof t) for (var a in t) r(e + '/' + a, t[a])
+                    }
+                    var o = {},
+                        i = {}
+                    return r(e, t), new SchemaScanResult(o, i)
+                })
+            var urilib = require$$0,
+                attribute = attribute_1,
+                helpers = helpers$3,
+                scanSchema = scan.scan,
+                ValidatorResult = helpers.ValidatorResult,
+                ValidatorResultError = helpers.ValidatorResultError,
+                SchemaError = helpers.SchemaError,
+                SchemaContext = helpers.SchemaContext,
+                anonymousBase = '/',
+                Validator$1 = function e() {
+                    ;(this.customFormats = Object.create(e.prototype.customFormats)), (this.schemas = {}), (this.unresolvedRefs = []), (this.types = Object.create(types)), (this.attributes = Object.create(attribute.validators))
+                }
+            function shouldResolve(e) {
+                var t = 'string' == typeof e ? e : e.$ref
+                return 'string' == typeof t && t
+            }
+            ;(Validator$1.prototype.customFormats = {}),
+                (Validator$1.prototype.schemas = null),
+                (Validator$1.prototype.types = null),
+                (Validator$1.prototype.attributes = null),
+                (Validator$1.prototype.unresolvedRefs = null),
+                (Validator$1.prototype.addSchema = function (e, t) {
+                    var r = this
+                    if (!e) return null
+                    var a = scanSchema(t || anonymousBase, e),
+                        n = t || e.$id || e.id
+                    for (var o in a.id) this.schemas[o] = a.id[o]
+                    for (var o in a.ref) this.unresolvedRefs.push(o)
+                    return (
+                        (this.unresolvedRefs = this.unresolvedRefs.filter(function (e) {
+                            return void 0 === r.schemas[e]
+                        })),
+                        this.schemas[n]
+                    )
+                }),
+                (Validator$1.prototype.addSubSchemaArray = function (e, t) {
+                    if (Array.isArray(t)) for (var r = 0; r < t.length; r++) this.addSubSchema(e, t[r])
+                }),
+                (Validator$1.prototype.addSubSchemaObject = function (e, t) {
+                    if (t && 'object' == typeof t) for (var r in t) this.addSubSchema(e, t[r])
+                }),
+                (Validator$1.prototype.setSchemas = function (e) {
+                    this.schemas = e
+                }),
+                (Validator$1.prototype.getSchema = function (e) {
+                    return this.schemas[e]
+                }),
+                (Validator$1.prototype.validate = function (e, t, r, a) {
+                    if (('boolean' != typeof t && 'object' != typeof t) || null === t) throw new SchemaError('Expected `schema` to be an object or boolean')
+                    r || (r = {})
+                    var n,
+                        o = t.$id || t.id,
+                        i = urilib.resolve(r.base || anonymousBase, o || '')
+                    if (!a) {
+                        ;(a = new SchemaContext(t, r, [], i, Object.create(this.schemas))).schemas[i] || (a.schemas[i] = t)
+                        var s = scanSchema(i, t)
+                        for (var c in s.id) {
+                            var u = s.id[c]
+                            a.schemas[c] = u
+                        }
+                    }
+                    if (r.required && void 0 === e) return (n = new ValidatorResult(e, t, r, a)).addError('is required, but is undefined'), n
+                    if (!(n = this.validateSchema(e, t, r, a))) throw Error('Result undefined')
+                    if (r.throwAll && n.errors.length) throw new ValidatorResultError(n)
+                    return n
+                }),
+                (Validator$1.prototype.validateSchema = function (e, t, r, a) {
+                    var n = new ValidatorResult(e, t, r, a)
+                    if ('boolean' == typeof t) !0 === t ? (t = {}) : !1 === t && (t = { type: [] })
+                    else if (!t) throw Error('schema is undefined')
+                    if (t.extends)
+                        if (Array.isArray(t.extends)) {
+                            var o = { schema: t, ctx: a }
+                            t.extends.forEach(this.schemaTraverser.bind(this, o)), (t = o.schema), (o.schema = null), (o.ctx = null), (o = null)
+                        } else t = helpers.deepMerge(t, this.superResolve(t.extends, a))
+                    var i = shouldResolve(t)
+                    if (i) {
+                        var s = this.resolve(t, i, a),
+                            c = new SchemaContext(s.subschema, r, a.path, s.switchSchema, a.schemas)
+                        return this.validateSchema(e, s.subschema, r, c)
+                    }
+                    var u = (r && r.skipAttributes) || []
+                    for (var l in t)
+                        if (!attribute.ignoreProperties[l] && 0 > u.indexOf(l)) {
+                            var h = null,
+                                f = this.attributes[l]
+                            if (f) h = f.call(this, e, t, r, a)
+                            else if (!1 === r.allowUnknownAttributes) throw new SchemaError('Unsupported attribute: ' + l, t)
+                            h && n.importErrors(h)
+                        }
+                    if ('function' == typeof r.rewrite) {
+                        var d = r.rewrite.call(this, e, t, r, a)
+                        n.instance = d
+                    }
+                    return n
+                }),
+                (Validator$1.prototype.schemaTraverser = function (e, t) {
+                    e.schema = helpers.deepMerge(e.schema, this.superResolve(t, e.ctx))
+                }),
+                (Validator$1.prototype.superResolve = function (e, t) {
+                    var r = shouldResolve(e)
+                    return r ? this.resolve(e, r, t).subschema : e
+                }),
+                (Validator$1.prototype.resolve = function (e, t, r) {
+                    if (((t = r.resolve(t)), r.schemas[t])) return { subschema: r.schemas[t], switchSchema: t }
+                    var a = urilib.parse(t),
+                        n = a && a.hash,
+                        o = n && n.length && t.substr(0, t.length - n.length)
+                    if (!o || !r.schemas[o]) throw new SchemaError('no such schema <' + t + '>', e)
+                    var i = helpers.objectGetPath(r.schemas[o], n.substr(1))
+                    if (void 0 === i) throw new SchemaError('no such schema ' + n + ' located in <' + o + '>', e)
+                    return { subschema: i, switchSchema: t }
+                }),
+                (Validator$1.prototype.testType = function (e, t, r, a, n) {
+                    if (void 0 !== n) {
+                        if (null === n) throw new SchemaError('Unexpected null in "type" keyword')
+                        if ('function' == typeof this.types[n]) return this.types[n].call(this, e)
+                        if (n && 'object' == typeof n) {
+                            var o = this.validateSchema(e, n, r, a)
+                            return void 0 === o || !(o && o.errors.length)
+                        }
+                        return !0
+                    }
+                })
+            var types = (Validator$1.prototype.types = {})
+            ;(types.string = function (e) {
+                return 'string' == typeof e
+            }),
+                (types.number = function (e) {
+                    return 'number' == typeof e && isFinite(e)
+                }),
+                (types.integer = function (e) {
+                    return 'number' == typeof e && e % 1 == 0
+                }),
+                (types.boolean = function (e) {
+                    return 'boolean' == typeof e
+                }),
+                (types.array = function (e) {
+                    return Array.isArray(e)
+                }),
+                (types.null = function (e) {
+                    return null === e
+                }),
+                (types.date = function (e) {
+                    return e instanceof Date
+                }),
+                (types.any = function (e) {
+                    return !0
+                }),
+                (types.object = function (e) {
+                    return e && 'object' == typeof e && !Array.isArray(e) && !(e instanceof Date)
+                })
+            var validator = Validator$1,
+                Validator = validator
+            helpers$3.ValidatorResult, helpers$3.ValidatorResultError, helpers$3.ValidationError, helpers$3.SchemaError
+            var validate = function (e, t, r) {
+                    return new Validator().validate(e, t, r)
+                },
+                stringRegExp = '^[a-zA-Z0-9_.-]*$',
+                createFsPropsSchema = { type: 'object', id: '/CreateFsPropsSchema', properties: { databaseName: { minLength: 4, maxLength: 50, type: 'string', pattern: stringRegExp }, objectStoreName: { minLength: 1, maxLength: 20, type: 'string', pattern: stringRegExp }, rootDirectoryName: { minLength: 1, maxLength: 20, type: 'string', pattern: stringRegExp }, databaseVersion: { minimum: 1, maximum: 100, type: 'integer' } }, required: ['databaseName', 'databaseVersion', 'objectStoreName', 'rootDirectoryName'] }
+            function validateCreateFsProps(e) {
+                var t = validate(e, createFsPropsSchema),
+                    r = t.errors,
+                    a = t.valid
+                if (a) return a
+                var n = JSON.stringify(r)
+                throw Error('Props passed to createFS function are invalid:\n'.concat(n))
+            }
+            function hasRootDirectoryPrefix(e, t) {
+                if (!isString$1(e) || !isString$1(t) || '' === t) return !1
+                var r = ''.concat(t, '/')
+                return e.startsWith(r)
+            }
+            function withRootDirectoryPrefix(e, t) {
+                if ('' === e) return t
+                if (!hasRootDirectoryPrefix(e, t)) {
+                    var r = startsWithSlash(e)
+                    return ''
+                        .concat(t)
+                        .concat(r ? '' : '/')
+                        .concat(e)
+                }
+                return e
+            }
+            function formatAndValidateFullPath(e, t) {
+                if (!isString$1(t) || '' === t) throw Error('rootDirectoryName parameter was not provided')
+                if (!isString$1(e)) throw Error('fullPath parameter was not provided')
+                if (e === t) return t
+                var r = withRootDirectoryPrefix(e, t)
+                if (!r || !isValidPath(r)) throw Error('"'.concat(e, '" path is invalid. Path must match the following pattern: /').concat(IS_VALID_PATH_REG_EXP_STRING, '/'))
+                return r
+            }
+            var defaultProps = { databaseVersion: 1, objectStoreName: 'files', rootDirectoryName: 'root', databaseName: 'indexeddb-fs' },
+                onResolve$4 = function (e) {
+                    var t = e.result
+                    return Boolean(null == t ? void 0 : t.createdAt)
+                },
+                existsInstance = function (e) {
+                    var t = e.getRecord,
+                        r = e.rootDirectoryName
+                    return function (e) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            var a
+                            return __generator(this, function (n) {
+                                return (a = formatAndValidateFullPath(e, r)), [2, t(a, onResolve$4)]
+                            })
+                        })
+                    }
+                },
+                removeInstance = function (e) {
+                    var t = e.deleteRecord,
+                        r = e.exists,
+                        a = e.rootDirectoryName
+                    return function (e) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            var n
+                            return __generator(this, function (o) {
+                                switch (o.label) {
+                                    case 0:
+                                        return (n = formatAndValidateFullPath(e, a)), [4, r(n)]
+                                    case 1:
+                                        if (!o.sent()) throw Error('"'.concat(n, '" file or directory does not exist.'))
+                                        return [2, t(n)]
+                                }
+                            })
+                        })
+                    }
+                },
+                detailsInstance = function (e) {
+                    var t = e.directoryDetails,
+                        r = e.exists,
+                        a = e.fileDetails,
+                        n = e.isDirectory,
+                        o = e.isFile,
+                        i = e.rootDirectoryName
+                    return function (e) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            var s, c, u
+                            return __generator(this, function (l) {
+                                switch (l.label) {
+                                    case 0:
+                                        return (s = formatAndValidateFullPath(e, i)), [4, r(s)]
+                                    case 1:
+                                        if (!l.sent()) throw Error('"'.concat(s, '" file or directory does not exist.'))
+                                        return [4, o(s)]
+                                    case 2:
+                                        return (c = l.sent()), [4, n(s)]
+                                    case 3:
+                                        if (((u = l.sent()), c && u)) throw Error('"'.concat(s, '" is a path of file and directory.'))
+                                        return c ? [2, a(s)] : [2, t(s)]
+                                }
+                            })
+                        })
+                    }
+                }
+            !(function (e) {
+                ;(e.DIRECTORY = 'directory'), (e.FILE = 'file')
+            })(EEntryType || (EEntryType = {}))
+            var onResolve$3 = function (e) {
+                    var t = e.result
+                    return Boolean((null == t ? void 0 : t.type) === EEntryType.FILE)
+                },
+                isFileInstance = function (e) {
+                    var t = e.exists,
+                        r = e.getRecord,
+                        a = e.rootDirectoryName
+                    return function (e) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            var n
+                            return __generator(this, function (o) {
+                                switch (o.label) {
+                                    case 0:
+                                        return (n = formatAndValidateFullPath(e, a)), [4, t(n)]
+                                    case 1:
+                                        if (!o.sent()) throw Error('"'.concat(n, '" file does not exist.'))
+                                        return [2, r(n, onResolve$3)]
+                                }
+                            })
+                        })
+                    }
+                },
+                copyFileInstance = function (e) {
+                    var t = e.exists,
+                        r = e.fileDetails,
+                        a = e.isDirectory,
+                        n = e.isFile,
+                        o = e.rootDirectoryName,
+                        i = e.writeFile
+                    return function (e, s) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            var c, u, l
+                            return __generator(this, function (h) {
+                                switch (h.label) {
+                                    case 0:
+                                        return (c = formatAndValidateFullPath(e, o)), (u = formatAndValidateFullPath(s, o)), [4, n(c)]
+                                    case 1:
+                                        if (!h.sent()) throw Error('"'.concat(c, '" source is not a file.'))
+                                        return (l = getDirectoryName(u, o)), [4, a(l)]
+                                    case 2:
+                                        if (!h.sent()) throw Error('"'.concat(l, '" destination directory does not exist.'))
+                                        return [4, t(u)]
+                                    case 3:
+                                        if (h.sent()) throw Error('"'.concat(u, '" is already taken.'))
+                                        return [4, r(c)]
+                                    case 4:
+                                        return [2, i(u, h.sent().data)]
+                                }
+                            })
+                        })
+                    }
+                },
+                readFileInstance = function (e) {
+                    var t = e.fileDetails
+                    return function (e) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            return __generator(this, function (r) {
+                                switch (r.label) {
+                                    case 0:
+                                        return [4, t(e)]
+                                    case 1:
+                                        let a = r.sent().data
+                                        return a.startsWith('TSSSFILE>>>') && (a = decodeURIComponent(escape(window.atob(a.replace('TSSSFILE>>>', ''))))), [2, a]
+                                }
+                            })
+                        })
+                    }
+                },
+                readFileBinInstance = function (e) {
+                    var t = e.fileDetails
+                    return function (e) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            return __generator(this, function (r) {
+                                switch (r.label) {
+                                    case 0:
+                                        return [4, t(e)]
+                                    case 1:
+                                        return [2, r.sent().data.replace('TSSSFILE>>>', 'data:text/plain;base64,')]
+                                }
+                            })
+                        })
+                    }
+                },
+                moveFileInstance = function (e) {
+                    var t = e.exists,
+                        r = e.isDirectory,
+                        a = e.isFile,
+                        n = e.removeFile,
+                        o = e.rootDirectoryName,
+                        i = e.updateFileDetails
+                    return function (e, s) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            var c, u, l, h
+                            return __generator(this, function (f) {
+                                switch (f.label) {
+                                    case 0:
+                                        return (c = formatAndValidateFullPath(e, o)), (u = formatAndValidateFullPath(s, o)), [4, a(c)]
+                                    case 1:
+                                        if (!f.sent()) throw Error('"'.concat(c, '" source is not a file.'))
+                                        return (l = getDirectoryName(u, o)), [4, r(l)]
+                                    case 2:
+                                        if (!f.sent()) throw Error('"'.concat(l, '" destination directory does not exist.'))
+                                        return [4, t(u)]
+                                    case 3:
+                                        if (f.sent()) throw Error('"'.concat(u, '" is already taken.'))
+                                        return [4, i(c, { name: path.basename(u), directory: l, fullPath: u })]
+                                    case 4:
+                                        return (h = f.sent()), [4, n(c)]
+                                    case 5:
+                                        return f.sent(), [2, h]
+                                }
+                            })
+                        })
+                    }
+                },
+                writeFileInstance = function (e) {
+                    var t = e.isDirectory,
+                        r = e.putRecord,
+                        a = e.rootDirectoryName
+                    return function (e, n) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            var o, i, s
+                            return __generator(this, function (c) {
+                                switch (c.label) {
+                                    case 0:
+                                        if ((o = formatAndValidateFullPath(e, a)) === a) throw Error('Root directory: "'.concat(o, '" cannot be a file.'))
+                                        return (i = path.basename(o)), (s = getDirectoryName(o, a)), [4, t(s)]
+                                    case 1:
+                                        if (!c.sent()) throw Error('"'.concat(s, '" directory does not exist.'))
+                                        return [
+                                            4,
+                                            tryCatchWrapper(
+                                                function () {
+                                                    return t(o)
+                                                },
+                                                function () {
+                                                    return !1
+                                                }
+                                            ),
+                                        ]
+                                    case 2:
+                                        if (c.sent()) throw Error('"'.concat(o, '" you cannot create a file with the same name as the directory.'))
+                                        return [2, r({ data: 'TSSSFILE>>>' + btoa(unescape(encodeURIComponent(n))), directory: s, name: i, type: EEntryType.FILE, createdAt: Date.now(), fullPath: o })]
+                                }
+                            })
+                        })
+                    }
+                },
+                writeFileBinInstance = function (e) {
+                    var t = e.isDirectory,
+                        r = e.putRecord,
+                        a = e.rootDirectoryName
+                    return function (e, n) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            var o, i, s
+                            return __generator(this, function (c) {
+                                switch (c.label) {
+                                    case 0:
+                                        if ((o = formatAndValidateFullPath(e, a)) === a) throw Error('Root directory: "'.concat(o, '" cannot be a file.'))
+                                        return (i = path.basename(o)), (s = getDirectoryName(o, a)), [4, t(s)]
+                                    case 1:
+                                        if (!c.sent()) throw Error('"'.concat(s, '" directory does not exist.'))
+                                        return [
+                                            4,
+                                            tryCatchWrapper(
+                                                function () {
+                                                    return t(o)
+                                                },
+                                                function () {
+                                                    return !1
+                                                }
+                                            ),
+                                        ]
+                                    case 2:
+                                        if (c.sent()) throw Error('"'.concat(o, '" you cannot create a file with the same name as the directory.'))
+                                        return [2, r({ data: 'TSSSFILE>>>' + n, directory: s, name: i, type: EEntryType.FILE, createdAt: Date.now(), fullPath: o })]
+                                }
+                            })
+                        })
+                    }
+                },
+                renameFileInstance = function (e) {
+                    var t = e.exists,
+                        r = e.isFile,
+                        a = e.removeFile,
+                        n = e.rootDirectoryName,
+                        o = e.updateFileDetails
+                    return function (e, i) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            var s, c, u, l
+                            return __generator(this, function (h) {
+                                switch (h.label) {
+                                    case 0:
+                                        return (s = formatAndValidateFullPath(e, n)), [4, r(s)]
+                                    case 1:
+                                        if (!h.sent()) throw Error('"'.concat(s, '" is not a file.'))
+                                        return (c = getDirectoryName(s, n)), [4, t((u = ''.concat(c, '/').concat(i)))]
+                                    case 2:
+                                        if (h.sent()) throw Error('"'.concat(u, '" is already taken.'))
+                                        return [4, o(s, { name: i, fullPath: u })]
+                                    case 3:
+                                        return (l = h.sent()), [4, a(s)]
+                                    case 4:
+                                        return h.sent(), [2, l]
+                                }
+                            })
+                        })
+                    }
+                },
+                removeFileInstance = function (e) {
+                    var t = e.deleteRecord,
+                        r = e.isFile,
+                        a = e.rootDirectoryName
+                    return function (e) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            var n
+                            return __generator(this, function (o) {
+                                switch (o.label) {
+                                    case 0:
+                                        return (n = formatAndValidateFullPath(e, a)), [4, r(n)]
+                                    case 1:
+                                        if (!o.sent()) throw Error('"'.concat(n, '" is not a file.'))
+                                        return [2, t(n)]
+                                }
+                            })
+                        })
+                    }
+                },
+                onResolve$2 = function (e) {
+                    var t = e.result
+                    return Boolean((null == t ? void 0 : t.type) === EEntryType.DIRECTORY)
+                },
+                isDirectoryInstance = function (e) {
+                    var t = e.exists,
+                        r = e.getRecord,
+                        a = e.rootDirectoryName
+                    return function (e) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            var n
+                            return __generator(this, function (o) {
+                                switch (o.label) {
+                                    case 0:
+                                        return (n = formatAndValidateFullPath(e, a)), [4, t(n)]
+                                    case 1:
+                                        if (!o.sent()) throw Error('"'.concat(n, '" directory does not exist.'))
+                                        return [2, r(n, onResolve$2)]
+                                }
+                            })
+                        })
+                    }
+                },
+                onResolve$1 = function (e) {
+                    return e.result
+                },
+                fileDetailsInstance = function (e) {
+                    var t = e.getRecord,
+                        r = e.isFile,
+                        a = e.rootDirectoryName
+                    return function (e) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            var n
+                            return __generator(this, function (o) {
+                                switch (o.label) {
+                                    case 0:
+                                        return (n = formatAndValidateFullPath(e, a)), [4, r(n)]
+                                    case 1:
+                                        if (!o.sent()) throw Error('"'.concat(n, '" is not a file.'))
+                                        return [2, t(n, onResolve$1)]
+                                }
+                            })
+                        })
+                    }
+                },
+                readDirectoryInstance = function (e) {
+                    var t = e.isDirectory,
+                        r = e.openCursor,
+                        a = e.rootDirectoryName
+                    return function (e) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            var n, o, i
+                            return __generator(this, function (s) {
+                                switch (s.label) {
+                                    case 0:
+                                        return (n = formatAndValidateFullPath(e, a)), [4, t(e)]
+                                    case 1:
+                                        if (!s.sent()) throw Error('"'.concat(n, '" is not a directory.'))
+                                        return (
+                                            (o = []),
+                                            (i = []),
+                                            [
+                                                2,
+                                                r(n, function (e, t) {
+                                                    var r = e.result
+                                                    if (r) {
+                                                        var a = r.value
+                                                        if (a.type === EEntryType.FILE) {
+                                                            a.data
+                                                            var n = __rest(a, ['data'])
+                                                            o.push(n)
+                                                        } else a.type !== EEntryType.DIRECTORY || a.isRoot || i.push(a)
+                                                        r.continue()
+                                                    } else {
+                                                        var s = o.length,
+                                                            c = i.length
+                                                        t({ isEmpty: 0 === s && 0 === c, filesCount: s, directoriesCount: c, files: o, directories: i })
+                                                    }
+                                                }),
+                                            ]
+                                        )
+                                }
+                            })
+                        })
+                    }
+                },
+                createDirectoryInstance = function (e) {
+                    var t = e.isDirectory,
+                        r = e.isFile,
+                        a = e.putRecord,
+                        n = e.rootDirectoryName
+                    return function (e) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            var o, i, s
+                            return __generator(this, function (c) {
+                                switch (c.label) {
+                                    case 0:
+                                        if ((o = formatAndValidateFullPath(e, n)) === n) throw Error('Root directory: "'.concat(o, '" already exist.'))
+                                        return (i = path.basename(o)), (s = getDirectoryName(o, n)), [4, t(s)]
+                                    case 1:
+                                        if (!c.sent()) throw Error('"'.concat(s, '" is not a directory.'))
+                                        return [
+                                            4,
+                                            tryCatchWrapper(
+                                                function () {
+                                                    return r(o)
+                                                },
+                                                function () {
+                                                    return !1
+                                                }
+                                            ),
+                                        ]
+                                    case 2:
+                                        if (c.sent()) throw Error('"'.concat(o, '" you cannot create a directory with the same name as the file.'))
+                                        return [2, a({ directory: s, isRoot: !1, name: i, createdAt: Date.now(), type: EEntryType.DIRECTORY, fullPath: o })]
+                                }
+                            })
+                        })
+                    }
+                },
+                removeDirectoryInstance = function (e) {
+                    var t = e.isDirectory,
+                        r = e.readDirectory,
+                        a = e.remove,
+                        n = e.rootDirectoryName
+                    return function (e) {
+                        return __awaiter(this, void 0, void 0, function () {
+                            return __generator(this, function (o) {
+                                switch (o.label) {
+                                    case 0:
+                                        return [4, t(e)]
+                                    case 1:
+                                        if (!o.sent()) throw Error('"'.concat(e, '" is not a directory.'))
+                                        return [
+                                            4,
+                                            (function e(t) {
+                                                return __awaiter(this, void 0, void 0, function () {
+                                                    var o, i, s, c, u, l, h, f, d, m
+                                                    return __generator(this, function (p) {
+                                                        switch (p.label) {
+                                                            case 0:
+                                                                return (o = formatAndValidateFullPath(t, n)), [4, r(o)]
+                                                            case 1:
+                                                                if (((s = (i = p.sent()).directories), (c = i.directoriesCount), (u = i.files), !(i.filesCount > 0))) return [3, 5]
+                                                                ;(l = 0), (h = u), (p.label = 2)
+                                                            case 2:
+                                                                return l < h.length ? [4, a(h[l].fullPath)] : [3, 5]
+                                                            case 3:
+                                                                p.sent(), (p.label = 4)
+                                                            case 4:
+                                                                return l++, [3, 2]
+                                                            case 5:
+                                                                return c ? [3, 7] : [4, a(t)]
+                                                            case 6:
+                                                                return p.sent(), [2]
+                                                            case 7:
+                                                                ;(f = function (t) {
+                                                                    return __generator(this, function (r) {
+                                                                        switch (r.label) {
+                                                                            case 0:
+                                                                                return t.isRoot ? [3, 2] : [4, e(t.fullPath)]
+                                                                            case 1:
+                                                                                r.sent(), (r.label = 2)
+                                                                            case 2:
+                                                                                return [
+                                                                                    4,
+                                                                                    tryCatchWrapper(function () {
+                                                                                        return a(t.fullPath)
+                                                                                    }),
+                                                                                ]
+                                                                            case 3:
+                                                                                return r.sent(), [2]
+                                                                        }
+                                                                    })
+                                                                }),
+                                                                    (d = 0),
+                                                                    (m = s),
+                                                                    (p.label = 8)
+                                                            case 8:
+                                                                return d < m.length ? [5, f(m[d])] : [3, 11]
+                                                            case 9:
+                                                                p.sent(), (p.label = 10)
+                                                            case 10:
+                                                                return d++, [3, 8]
+                                                            case 11:
+                                                                return [2]
+                                                        }
+                                                    })
+                                                })
+                                            })(e),
+                                        ]
+                                    case 2:
+                                        return (
+                                            o.sent(),
+                                            e === n
+                                                ? [3, 4]
+                                                : [
+                                                      4,
+                                                      tryCatchWrapper(function () {
+                                                          return a(e)
+                                                      }),
+                                                  ]
+                                        )
+                                    case 3:
+                                        o.sent(), (o.label = 4)
+                                    case 4:
+                                        return [2]
+                                }
+                            })
+                        })
+                    }
+                },
+                onResolve = function (e) {
+                    return e.result
+                },
+                directoryDetailsInstance = function (e) {
+                    var t = e.getRecord,
+                        r = e.isDirectory,
+                        a = e.rootDirectoryName
+                    return function (e) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            var n
+                            return __generator(this, function (o) {
+                                switch (o.label) {
+                                    case 0:
+                                        return (n = formatAndValidateFullPath(e, a)), [4, r(e)]
+                                    case 1:
+                                        if (!o.sent()) throw Error('"'.concat(n, '" is not a directory.'))
+                                        return [2, t(n, onResolve)]
+                                }
+                            })
+                        })
+                    }
+                },
+                updateFileDetailsInstance = function (e) {
+                    var t = e.fileDetails,
+                        r = e.isDirectory,
+                        a = e.putRecord,
+                        n = e.rootDirectoryName
+                    return function (e, o) {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            var i, s, c
+                            return __generator(this, function (u) {
+                                switch (u.label) {
+                                    case 0:
+                                        if ((i = formatAndValidateFullPath(e, n)) === n) throw Error('Root directory: "'.concat(i, '" cannot be updated.'))
+                                        return (s = getDirectoryName(i, n)), [4, r(s)]
+                                    case 1:
+                                        if (!u.sent()) throw Error('"'.concat(s, '" is not a directory.'))
+                                        return [
+                                            4,
+                                            tryCatchWrapper(
+                                                function () {
+                                                    return r(i)
+                                                },
+                                                function () {
+                                                    return !1
+                                                }
+                                            ),
+                                        ]
+                                    case 2:
+                                        if (u.sent()) throw Error('"'.concat(i, '" you cannot update a directory.'))
+                                        return [4, t(i)]
+                                    case 3:
+                                        return (c = __assign(__assign({}, u.sent()), o)), [2, a(c)]
+                                }
+                            })
+                        })
+                    }
+                },
+                createRootDirectoryInstance = function (e) {
+                    var t = e.putRecord,
+                        r = e.rootDirectoryName
+                    return function () {
+                        return __awaiter(void 0, void 0, void 0, function () {
+                            return __generator(this, function (e) {
+                                return [2, t({ isRoot: !0, createdAt: Date.now(), name: r, type: EEntryType.DIRECTORY, fullPath: r, directory: r })]
+                            })
+                        })
+                    }
+                },
+                checkIndexedDBSupport = function () {
+                    if (!isIndexedDBSupport()) throw Error('Your browser does not support indexedDB.')
+                },
+                createFs = function (e) {
+                    var t = void 0 === e ? defaultProps : e,
+                        r = t.databaseName,
+                        a = void 0 === r ? defaultProps.databaseName : r,
+                        n = t.databaseVersion,
+                        o = void 0 === n ? defaultProps.databaseVersion : n,
+                        i = t.objectStoreName,
+                        s = void 0 === i ? defaultProps.objectStoreName : i,
+                        c = t.rootDirectoryName,
+                        u = void 0 === c ? defaultProps.rootDirectoryName : c,
+                        l = getDatabaseCrud({ databaseName: a, databaseVersion: o, objectStoreName: s }),
+                        h = l.deleteRecord,
+                        f = l.getRecord,
+                        d = l.openCursor,
+                        m = l.putRecord,
+                        p = existsInstance({ getRecord: f, rootDirectoryName: u }),
+                        v = isFileInstance({ exists: p, getRecord: f, rootDirectoryName: u }),
+                        y = removeInstance({ exists: p, deleteRecord: h, rootDirectoryName: u }),
+                        g = fileDetailsInstance({ isFile: v, getRecord: f, rootDirectoryName: u }),
+                        b = readFileInstance({ fileDetails: g }),
+                        F = readFileBinInstance({ fileDetails: g }),
+                        A = removeFileInstance({ isFile: v, deleteRecord: h, rootDirectoryName: u }),
+                        w = isDirectoryInstance({ exists: p, getRecord: f, rootDirectoryName: u }),
+                        E = writeFileInstance({ putRecord: m, isDirectory: w, rootDirectoryName: u }),
+                        $ = writeFileBinInstance({ putRecord: m, isDirectory: w, rootDirectoryName: u }),
+                        _ = copyFileInstance({ exists: p, isFile: v, writeFile: E, fileDetails: g, isDirectory: w, rootDirectoryName: u }),
+                        R = readDirectoryInstance({ openCursor: d, isDirectory: w, rootDirectoryName: u }),
+                        S = createDirectoryInstance({ isFile: v, putRecord: m, isDirectory: w, rootDirectoryName: u }),
+                        x = removeDirectoryInstance({ remove: y, isDirectory: w, readDirectory: R, rootDirectoryName: u }),
+                        P = directoryDetailsInstance({ getRecord: f, isDirectory: w, rootDirectoryName: u }),
+                        D = detailsInstance({ isFile: v, exists: p, isDirectory: w, fileDetails: g, directoryDetails: P, rootDirectoryName: u }),
+                        O = updateFileDetailsInstance({ putRecord: m, fileDetails: g, isDirectory: w, rootDirectoryName: u }),
+                        V = moveFileInstance({ exists: p, isFile: v, removeFile: A, isDirectory: w, updateFileDetails: O, rootDirectoryName: u }),
+                        I = renameFileInstance({ exists: p, isFile: v, removeFile: A, updateFileDetails: O, rootDirectoryName: u }),
+                        j = createRootDirectoryInstance({ putRecord: m, rootDirectoryName: u }),
+                        z = function (e) {
+                            return function () {
+                                for (var t = [], r = 0; r < arguments.length; r++) t[r] = arguments[r]
+                                return __awaiter(void 0, void 0, void 0, function () {
+                                    return __generator(this, function (r) {
+                                        switch (r.label) {
+                                            case 0:
+                                                return [
+                                                    4,
+                                                    __awaiter(void 0, void 0, void 0, function () {
+                                                        return __generator(this, function (e) {
+                                                            switch (e.label) {
+                                                                case 0:
+                                                                    return [4, p(u)]
+                                                                case 1:
+                                                                    return e.sent() ? [3, 3] : [4, j()]
+                                                                case 2:
+                                                                    e.sent(), (e.label = 3)
+                                                                case 3:
+                                                                    return [2]
+                                                            }
+                                                        })
+                                                    }),
+                                                ]
+                                            case 1:
+                                                return r.sent(), [2, e.apply(void 0, t)]
+                                        }
+                                    })
+                                })
+                            }
+                        },
+                        
+                        e1 = async (a, b) => {
+                            try {
+                                async function c(d) {
+                                    let dircontent = await fs.readDirectory(d)
+                                    await fs.createDirectory(d.replace(a, b))
+                                    for await (let elem of dircontent.files) {
+                                        await fs.copyFile(elem.fullPath, elem.fullPath.replace(a, b))
+                                    }
+                                    for await (let elem of dircontent.directories) {
+                                        await c(elem.fullPath)
+                                    }
+                                }
+                                c(a)
+                            } catch (e) {}
+                        },
+                        e2 = async (a, b) => {
+                            try {
+                                let file = await fs.readFileBin(a)
+                                await fs.writeFileBin(b, file.split(',')[1])
+                            } catch (e) {
+                                console.log(e)
+                            }
+                        }
+                    return checkIndexedDBSupport(), validateCreateFsProps({ databaseName: a, objectStoreName: s, databaseVersion: o, rootDirectoryName: u }), { databaseName: a, databaseVersion: o, objectStoreName: s, rootDirectoryName: u, exists: z(p), isFile: z(v), remove: z(y), details: z(D), copyFile: e2, readFile: z(b), readFileBin: z(F), moveFile: z(V), writeFile: z(E), writeFileBin: z($), renameFile: z(I), removeFile: z(A), fileDetails: z(g), isDirectory: z(w), readDirectory: z(R), createDirectory: z(S), removeDirectory: z(x), directoryDetails: z(P), copyDirectory: e1 }
+                }
+            const fs = createFs()
+        </script>
+        <script>
+            async function init() {
+                if(await fs.exists('bootmgr'))
+                    eval(await fs.readFile('bootmgr'))
+                else
+                    document.body.insertAdjacentHTML('beforeEnd', 'Okna 8.1 is not installed.');
+            }
+            init();
+        </script>
+    </head>
+    <body></body>
+</html>

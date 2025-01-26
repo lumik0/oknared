@@ -1,0 +1,76 @@
+{
+    "AppCompileList": [
+        {
+            "from": "AppsSources/bootres",
+            "to": "/Windows/Boot/Resources/bootres.el"
+        },
+        {
+            "from": "AppsSources/winver",
+            "to": "/Windows/system32/winver.ore"
+        },
+        {
+            "from": "AppsSources/basebrd",
+            "to": "/Windows/Branding/Basebrd/basebrd.el"
+        },
+        {
+            "from": "AppsSources/aero",
+            "to": "/Windows/Resources/Themes/aero/aero.el"
+        },
+        {
+            "from": "AppsSources/shell32",
+            "to": "/Windows/system32/shell32.el"
+        },
+        {
+            "from": "AppsSources/regedit",
+            "to": "/Windows/regedit.ore"
+        },
+        {
+            "from": "AppsSources/imageres",
+            "to": "/Windows/system32/imageres.el"
+        },
+        {
+            "from": "AppsSources/msoobe",
+            "to": "/Windows/system32/oobe/msoobe.ore"
+        },
+        {
+            "from": "AppsSources/oobeldr",
+            "to": "/Windows/system32/oobe/oobeldr.ore"
+        },
+        {
+            "from": "AppsSources/msoobeFirstLogonAnim",
+            "to": "/Windows/system32/oobe/msoobeFirstLogonAnim.el"
+        },
+        {
+            "from": "AppsSources/FirstLogonAnim",
+            "to": "/Windows/system32/oobe/FirstLogonAnim.ore"
+        },
+        {
+            "from": "AppsSources/winlogon",
+            "to": "/Windows/system32/winlogon.ore"
+        },
+        {
+            "from": "AppsSources/explorer",
+            "to": "/Windows/explorer.ore"
+        },
+        {
+            "from": "AppsSources/twinui",
+            "to": "/Windows/system32/twinui.el"
+        },
+        {
+            "from": "AppsSources/explorerframe",
+            "to": "/Windows/system32/explorerframe.el"
+        },
+        {
+            "from": "AppsSources/notepad",
+            "to": "/Windows/system32/notepad.ore"
+        },
+        {
+            "from": "AppsSources/control",
+            "to": "/Windows/system32/control.ore"
+        },
+        {
+            "from": "AppsSources/mmsgbox",
+            "to": "/Windows/system32/mmsgbox.ore"
+        }
+    ]
+}
