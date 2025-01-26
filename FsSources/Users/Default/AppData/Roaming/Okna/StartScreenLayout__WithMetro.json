@@ -1,0 +1,111 @@
+[
+    {
+        "groupname": "",
+        "groupcontent": [
+            {
+                "size": "wide",
+                "type": "app",
+                "package": "TSSS.Mail"
+            },
+            {
+                "size": "wide",
+                "type": "app",
+                "package": "TSSS.Sports"
+            },
+            {
+                "size": "standart",
+                "type": "app",
+                "package": "TSSS.People"
+            },
+            {
+                "size": "standart",
+                "type": "app",
+                "package": "TSSS.Skype"
+            },
+            {
+                "size": "wide",
+                "type": "app",
+                "package": "TSSS.Calendar"
+            },
+            {
+                "size": "wide",
+                "type": "desktop"
+            },
+            {
+                "size": "wide",
+                "type": "app",
+                "package": "TSSS.Finances"
+            },
+            {
+                "size": "large",
+                "type": "app",
+                "package": "TSSS.Weather"
+            },
+            {
+                "size": "standart",
+                "type": "app",
+                "package": "TSSS.InternetExplorer"
+            },
+            {
+                "size": "standart",
+                "type": "app",
+                "package": "TSSS.Calculator"
+            },
+            {
+                "size": "standart",
+                "type": "app",
+                "package": "TSSS.HelpTips"
+            },
+            {
+                "size": "standart",
+                "type": "app",
+                "package": "TSSS.OneDrive"
+            },
+            {
+                "size": "standart",
+                "type": "app",
+                "package": "TSSS.Photos"
+            },
+            {
+                "size": "standart",
+                "type": "app",
+                "package": "TSSS.OneNote"
+            },
+            {
+                "size": "wide",
+                "type": "app",
+                "package": "TSSS.News"
+            }
+        ]
+    },
+    {
+        "groupname": "",
+        "groupcontent": [
+            {
+                "size": "large",
+                "type": "app",
+                "package": "TSSS.Store"
+            },
+            {
+                "size": "standart",
+                "type": "app",
+                "package": "TSSS.HealthAndFitness"
+            },
+            {
+                "size": "standart",
+                "type": "app",
+                "package": "TSSS.Food"
+            },
+            {
+                "size": "standart",
+                "type": "app",
+                "package": "TSSS.Maps"
+            },
+            {
+                "size": "standart",
+                "type": "app",
+                "package": "TSSS.ReadList"
+            }
+        ]
+    }
+]

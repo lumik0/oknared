@@ -1,0 +1,76 @@
+{
+    "data": {},
+    "children": {
+        "SAM": {
+            "data": {
+                "@": {
+                    "type": "REG_SZ",
+                    "data": null
+                }
+            },
+            "children": {
+                "Domains": {
+                    "data": {
+                        "@": {
+                            "type": "REG_SZ",
+                            "data": null
+                        }
+                    },
+                    "children": {
+                        "Account": {
+                            "data": {
+                                "@": {
+                                    "type": "REG_SZ",
+                                    "data": null
+                                }
+                            },
+                            "children": {
+                                "Users": {
+                                    "data": {
+                                        "@": {
+                                            "type": "REG_SZ",
+                                            "data": null
+                                        }
+                                    },
+                                    "children": {
+                                        "000001F4": {
+                                            "data": {},
+                                            "children": {}
+                                        },
+                                        "000001F5": {
+                                            "data": {},
+                                            "children": {}
+                                        },
+                                        "Names": {
+                                            "data": {},
+                                            "children": {
+                                                "Administrator": {
+                                                    "data": {
+                                                        "@": {
+                                                            "type": "0x1f4",
+                                                            "data": []
+                                                        }
+                                                    },
+                                                    "children": {}
+                                                },
+                                                "Guest": {
+                                                    "data": {
+                                                        "@": {
+                                                            "type": "0x1f5",
+                                                            "data": []
+                                                        }
+                                                    },
+                                                    "children": {}
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

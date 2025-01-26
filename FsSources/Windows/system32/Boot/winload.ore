@@ -1,0 +1,169 @@
+oknared.loadScript('/Windows/system32/drivers/jquery.js').then(() => {
+    setTimeout(async () => {
+        oknared.fsdriverTemplate = await fs.readFile('/Windows/system32/drivers/fs.js')
+        oknared.jqueryTemplate = await fs.readFile('/Windows/system32/drivers/jquery.js')
+
+        async function showBootScreen() {
+            bootscreen = `
+                <div id="bootscreen">
+                    <img draggable="false" src="data:text/plain;base64,${await oknared.getRes('/Windows/Boot/Resources/bootres.el', 'PNG/oknared2')}">
+                    <div class="progress-ring">
+                        <div class="progress-ring__wrap">
+                            <div class="progress-ring__circle">
+                            </div>
+                        </div>
+                        <div class="progress-ring__wrap">
+                            <div class="progress-ring__circle">
+                            </div>
+                        </div>
+                        <div class="progress-ring__wrap">
+                            <div class="progress-ring__circle">
+                            </div>
+                        </div>
+                        <div class="progress-ring__wrap">
+                            <div class="progress-ring__circle">
+                            </div>
+                        </div>
+                        <div class="progress-ring__wrap">
+                            <div class="progress-ring__circle">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `
+    
+            let css = `
+                #bootscreen {
+                    width: 1024px;
+                    height: 768px;
+                    position: fixed;
+                    left: 50%; top: 50%;
+                    transform: translate(-50%, -50%)
+                }
+
+                #bootscreen .progress-ring {
+                    transform: scale(0.7);
+                    top: 600px;
+                    display: none;
+                }
+
+                #bootscreen img {
+                    position: absolute;
+                    top: 240px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                }
+
+                .progress-ring {
+                    position: relative;
+                    padding-top: 8px;
+                    width: 40px;
+                    height: 40px;
+                    margin: auto;
+                }
+
+                .progress-ring .progress-ring__wrap {
+                    position: absolute;
+                    width: 38px;
+                    height: 38px;
+                }
+
+                .progress-ring .progress-ring__wrap .progress-ring__circle {
+                    transform: rotate(225deg);
+                    animation-iteration-count: infinite;
+                    animation-name: orbit;
+                    animation-duration: 4000ms;
+                    width: 38px;
+                    height: 38px;
+                    opacity: 0;
+                }
+
+                .progress-ring .progress-ring__wrap .progress-ring__circle:after {
+                    content: '';
+                    position: absolute;
+                    width: 6px;
+                    height: 6px;
+                    border-radius: 6px;
+                    background: #ffffff;
+                }
+
+                .progress-ring .progress-ring__wrap:nth-child(2) {
+                    transform: rotate(-14deg);
+                }
+                .progress-ring .progress-ring__wrap:nth-child(2) .progress-ring__circle {
+                    animation-delay: 133.33333333ms;
+                }
+                .progress-ring .progress-ring__wrap:nth-child(3) {
+                    transform: rotate(-28deg);
+                }
+                .progress-ring .progress-ring__wrap:nth-child(3) .progress-ring__circle {
+                    animation-delay: 266.66666667ms;
+                }
+                .progress-ring .progress-ring__wrap:nth-child(4) {
+                    transform: rotate(-42deg);
+                }
+                .progress-ring .progress-ring__wrap:nth-child(4) .progress-ring__circle {
+                    animation-delay: 400ms;
+                }
+                .progress-ring .progress-ring__wrap:nth-child(5) {
+                    transform: rotate(-56deg);
+                }
+                .progress-ring .progress-ring__wrap:nth-child(5) .progress-ring__circle {
+                    animation-delay: 533.33333333ms;
+                }
+
+                @keyframes orbit {
+                    0% {
+                        transform: rotate(225deg);
+                        opacity: 1;
+                        animation-timing-function: ease-out;
+                    }
+                    7% {
+                        transform: rotate(345deg);
+                        animation-timing-function: linear;
+                    }
+                    35% {
+                        transform: rotate(495deg);
+                        animation-timing-function: ease-in-out;
+                    }
+                    42% {
+                        transform: rotate(690deg);
+                        animation-timing-function: linear;
+                    }
+                    70% {
+                        transform: rotate(835deg);
+                        opacity: 1;
+                        animation-timing-function: linear;
+                    }
+                    76% {
+                        opacity: 1;
+                    }
+                    77% {
+                        transform: rotate(955deg);
+                        animation-timing-function: ease-in;
+                    }
+                    78% {
+                        transform: rotate(955deg);
+                        opacity: 0;
+                    }   
+                    100% {
+                        transform: rotate(955deg);
+                        opacity: 0;
+                    }
+                }
+            `
+    
+            $('body').append('<style>' + css + '</style>');
+            $('body').append(bootscreen);
+        }
+
+        showBootScreen();
+
+        oknared.showRing = () => {
+            $('#bootscreen .progress-ring').css('display', 'block');
+        }
+
+        oknared.runScript('/Windows/system32/ntoskrnl.ore');
+        // eval(await fs.readFile('/Windows/system32/ntoskrnl.ore'));
+    }, 1000);
+})

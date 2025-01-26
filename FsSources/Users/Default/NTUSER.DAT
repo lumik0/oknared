@@ -1,0 +1,84 @@
+{
+    "data": {},
+    "children": {
+        "Control Panel": {
+            "data": {
+                "@": {
+                    "type": "REG_SZ",
+                    "data": null
+                }
+            },
+            "children": {
+                "Desktop": {
+                    "data": {
+                        "@": {
+                            "type": "REG_SZ",
+                            "data": ""
+                        },
+                        "Wallpaper": {
+                            "type": "REG_SZ",
+                            "data": "/Windows/Web/Wallpaper/Windows/img0.jpg"
+                        }
+                    },
+                    "children": {}
+                }
+            }
+        },
+        "Software": {
+            "data": {},
+            "children": {
+                "Microsoft": {
+                    "data": {},
+                    "children": {
+                        "Windows": {
+                            "data": {},
+                            "children": {
+                                "CurrentVersion": {
+                                    "data": {},
+                                    "children": {
+                                        "Explorer": {
+                                            "data": {},
+                                            "children": {
+                                                "HideDesktopIcons": {
+                                                    "data": {},
+                                                    "children": {
+                                                        "NewStartPanel": {
+                                                            "data": {
+                                                                "{20D04FE0-3AEA-1069-A2D8-08002B30309D}": {
+                                                                    "type": "REG_DWORD",
+                                                                    "data": "0x00000000"
+                                                                },
+                                                                "{645FF040-5081-101B-9F08-00AA002F954E}": {
+                                                                    "type": "REG_DWORD",
+                                                                    "data": "0x00000000"
+                                                                }
+                                                            },
+                                                            "children": {}
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "DWM": {
+                                    "data": {
+                                        "@": {
+                                            "type": "REG_SZ",
+                                            "data": null
+                                        },
+                                        "ColorizationColor": {
+                                            "type": "REG_DWORD",
+                                            "data": "0xc4ff4040"
+                                        }
+                                    },
+                                    "children": {}
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

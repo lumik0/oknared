@@ -1,0 +1,2168 @@
+//OKNARED_1.1.112.2
+
+oknared.log = console.log;
+// oknared.log = ()=>{};
+
+oknared.log('OS Kernel loading');
+
+let VERSION = '1.1.112.2';
+
+let currentLanguage = 'en-us';
+
+///// Примечание: код выполняется в eval, соответственно, необходимо использовать "oknared."
+
+async function ntoskrnlInit() {
+    oknared.showRing();
+
+    oknared.currentVer = {
+        ver: VERSION.split('.')[0] + '.' + VERSION.split('.')[1],
+        build: VERSION.split('.')[2] + '.' + VERSION.split('.')[3],
+        fullVer: VERSION,
+    }
+
+    oknared.buildRegistry = async () => {
+        oknared.registry = {
+            HKEY_LOCAL_MACHINE: {
+                data: {},
+                children: {},
+            },
+            HKEY_USERS: {
+                data: {},
+                children: {},
+            },
+        }
+        oknared.registry.HKEY_USERS.children['.DEFAULT'] = JSON.parse(await fs.readFile('/Windows/system32/config/DEFAULT'));
+        oknared.registry.HKEY_LOCAL_MACHINE.children.SAM = JSON.parse(await fs.readFile('/Windows/system32/config/SAM'));
+        oknared.registry.HKEY_LOCAL_MACHINE.children.SECURITY = JSON.parse(await fs.readFile('/Windows/system32/config/SECURITY'));
+        oknared.registry.HKEY_LOCAL_MACHINE.children.SOFTWARE = JSON.parse(await fs.readFile('/Windows/system32/config/SOFTWARE'));
+        oknared.registry.HKEY_LOCAL_MACHINE.children.SYSTEM = JSON.parse(await fs.readFile('/Windows/system32/config/SYSTEM'));
+
+        oknared.reg = {};
+        oknared.reg.path = (path) => {
+            if(path.startsWith('HKEY_CLASSES_ROOT')) {
+                path = path.replace('HKEY_CLASSES_ROOT', 'HKEY_LOCAL_MACHINE/SOFTWARE/Classes');
+            }
+            if(path.startsWith('HKEY_CURRENT_CONFIG')) {
+                path = path.replace('HKEY_CURRENT_CONFIG', 'HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Hardware Profiles/Current');
+            }
+            path = path.split('/');
+            return path;
+        }
+        oknared.reg.readHive = (path) => {
+            path = oknared.reg.path(path);
+            let path2 = 'oknared.registry';
+            for(let i = 0; i < path.length; i++) {
+                let elem = path[i];
+                path2 += `["${elem}"]`;
+                if(i + 1 != path.length) {
+                    path2 += `.children`;
+                }
+            }
+            try {
+                let cont = eval(path2);
+                let keys = Object.keys(cont.data);
+                let hives = Object.keys(cont.children);
+                return { keys: keys, hives: hives };
+            } catch {
+                return 'Error: Отсутствует куст "' + path.join('/') + '"';
+            }
+        }
+        oknared.reg.readKey = (path) => {
+            path = oknared.reg.path(path);
+            let path2 = 'oknared.registry';
+            for(let i = 0; i < path.length; i++) {
+                let elem = path[i];
+                if(i + 1 == path.length) {
+                    path2 += `.data["${elem}"]`;
+                } else {
+                    path2 += `["${elem}"]`;
+                    if(i + 2 != path.length) {
+                        path2 += `.children`
+                    }
+                }
+            }
+            try {
+                return eval(path2);
+            } catch {
+                return 'Error: Отсутствует ключ "' + path.join('/') + '"';
+            }
+        }
+        oknared.reg.createHive = (path) => {
+            path = oknared.reg.path(path);
+            let path2 = 'oknared.registry';
+            let path3 = '';
+            for(let i = 0; i < path.length; i++) {
+                path3 = path2;
+                let elem = path[i];
+                if(i != 0) {
+                    path2 += `.children`;
+                }
+                path2 += `["${elem}"]`
+                if(eval('typeof ' + path2) == 'undefined') {
+                    eval(
+                        path2 +
+                            ` =
+                        {
+                            "data": {
+                                "@": {
+                                    "type": "REG_SZ",
+                                    "data": null
+                                }
+                            },
+                            "children": {
+                            
+                            }
+                        }
+                    `
+                    );
+                }
+            }
+            oknared.reg.toDisk();
+        }
+        oknared.reg.writeKey = (path, type, data) => {
+            path = oknared.reg.path(path)
+            let path2 = 'oknared.registry'
+            for(let i = 0; i < path.length; i++) {
+                let elem = path[i]
+                if(i + 1 != path.length) {
+                    if(i != 0) {
+                        path2 += `.children`
+                    }
+                    path2 += `["${elem}"]`
+                    if(eval('typeof ' + path2) == 'undefined') {
+                        eval(
+                            path2 +
+                                ` =
+                            {
+                                "data": {
+                                    "@": {
+                                        "type": "REG_SZ",
+                                        "data": null
+                                    }
+                                },
+                                "children": {
+                                
+                                }
+                            }
+                        `
+                        )
+                    }
+                } else if(i + 1 == path.length) {
+                    eval(
+                        path2 +
+                            `.data["${elem}"] =
+                        {
+                            "type": "${type}",
+                            "data": "${data}"
+                        }
+                    `
+                    )
+                }
+            }
+            oknared.reg.toDisk();
+        }
+        oknared.reg.removeKey = (path) => {
+            path = oknared.reg.path(path)
+            let path2 = 'oknared.registry'
+            for(let i = 0; i < path.length; i++) {
+                let elem = path[i]
+                if(i + 1 != path.length) {
+                    if(i != 0) {
+                        path2 += `.children`
+                    }
+                    path2 += `["${elem}"]`
+                } else if(i + 1 == path.length) {
+                    eval(`delete ${path2}.data["${elem}"]`)
+                }
+            }
+            oknared.reg.toDisk();
+        }
+        oknared.reg.removeHive = (path) => {
+            path = oknared.reg.path(path)
+            let path2 = 'oknared.registry'
+            for(let i = 0; i < path.length; i++) {
+                let elem = path[i]
+                if(i + 1 != path.length) {
+                    if(i != 0) {
+                        path2 += `.children`
+                    }
+                    path2 += `["${elem}"]`
+                } else if(i + 1 == path.length) {
+                    eval(`delete ${path2}.children["${elem}"]`)
+                }
+            }
+            oknared.reg.toDisk();
+        }
+        oknared.reg.toDisk = async () => {
+            let sam = oknared.registry.HKEY_LOCAL_MACHINE.children.SAM;
+            let security = oknared.registry.HKEY_LOCAL_MACHINE.children.SECURITY;
+            let software = oknared.registry.HKEY_LOCAL_MACHINE.children.SOFTWARE;
+            let system = oknared.registry.HKEY_LOCAL_MACHINE.children.SYSTEM;
+            await fs.writeFile('/Windows/system32/config/SAM', JSON.stringify(sam));
+            await fs.writeFile('/Windows/system32/config/SECURITY', JSON.stringify(security));
+            await fs.writeFile('/Windows/system32/config/SOFTWARE', JSON.stringify(software));
+            await fs.writeFile('/Windows/system32/config/SYSTEM', JSON.stringify(system));
+            for await(let elem of oknared.reg.mountedPoints){
+                let hive = eval(elem.regpath);
+                await fs.writeFile(elem.fspath, JSON.stringify(hive));
+            }
+        }
+
+        oknared.reg.mountedPoints = [];
+
+        let userProfiles = oknared.reg.readHive('HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Windows NT/CurrentVersion/ProfileList').hives;
+        if(!userProfiles) oknared.crash('блять');
+        for await(let elem of userProfiles) {
+            if(elem != 'S-1-5-18') {
+                let fspath = oknared.reg.readKey('HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Windows NT/CurrentVersion/ProfileList/' + elem + '/ProfileImagePath').data + '/NTUSER.DAT'
+                oknared.reg.mountedPoints.push({
+                    regpath: 'registry.HKEY_USERS.children["' + elem + '"]',
+                    fspath: fspath,
+                });
+                oknared.registry.HKEY_USERS.children[elem] = JSON.parse(await fs.readFile(fspath));
+            }
+        }
+    }
+
+    oknared.buildRegistry();
+
+    oknared.createUser = async (args) => {
+        let a = oknared.reg.readHive('HKEY_LOCAL_MACHINE/SAM/SAM/Domains/Account/Users').hives
+        a.splice(a.indexOf('Names'), 1)
+        let b = oknared.reg.readHive('HKEY_LOCAL_MACHINE/SAM/SAM/Domains/Account/Users/Names').hives
+        let d = {}
+        b.forEach((elem) => {
+            let c = oknared.reg.readKey('HKEY_LOCAL_MACHINE/SAM/SAM/Domains/Account/Users/Names/' + elem + '/@')
+            d[parseInt(c.type.replace('0x', ''), 16)] = elem
+        })
+        let max = 0
+        Object.keys(d).forEach((elem) => {
+            if(Number(elem) > max) {
+                max = Number(elem)
+            }
+        })
+        if(max < 1001) {
+            max = 1001;
+        } else {
+            max++;
+        }
+        // Generate SID
+        let newsid = 'S-1-5-21-' + '0000000000-00000000-0000000000' + '-' + max
+        await oknared.reg.createHive('HKEY_LOCAL_MACHINE/SAM/SAM/Domains/Account/Users/' + max.toString(16).toUpperCase().padStart(8, '0'))
+        await oknared.reg.writeKey('HKEY_LOCAL_MACHINE/SAM/SAM/Domains/Account/Users/Names/' + args.userName + '/@', '0x' + max.toString(16), null)
+        return {
+            rid: max,
+            sid: newsid,
+            userName: args.userName,
+        }
+    }
+
+    let fontsConfig = JSON.parse(await fs.readFile('/Windows/Fonts/config.json'))
+    $('body').append('<style id="fontsStyle"></style>')
+    for await(let elem of fontsConfig.fonts) {
+        $('#fontsStyle').append(`
+            @font-face {
+                src: url("${await fs.readFileBin(elem.path)}");
+                font-family: "${elem.fontFamily}";
+            }
+        `)
+    }
+
+    $('body').append(`<style>
+        * {
+            user-select: none;
+        }
+    
+        #WindowContainer {
+            --maximizedWinLeft: 0;
+            --maximizedWinTop: 0;
+            --maximizedWinWidth: calc(100vw);
+            --maximizedWinHeight: calc(100vh - 40px);
+        }
+    
+        .WindowContainer {
+            --winColor: rgb(251, 81, 81);
+            position: fixed;
+            --width: 800px;
+            --height: 600px;
+            width: var(--width);
+            height: var(--height);
+            --posX: 100px;
+            --posY: 100px;
+            top: var(--posY);
+            left: var(--posX);
+            /*display: none;*/
+            perspective: 1000px;
+        }
+    
+        .WindowContainer.hidden {
+            display: none
+        }
+
+        .WindowContainer > .Window {
+            --animation: windowShowAnim 0.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+            animation: var(--animation)
+        }
+
+        @keyframes windowShowAnim {
+            0% {
+                transform: rotateX(-10deg) scale(0.9);
+                perspective-origin: center top;
+                transform-origin: center top;
+                opacity: 0;
+            }
+            100% {
+                transform: rotateX(0deg) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes windowHideAnim {
+            0% {
+                transform: rotateX(0deg) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: rotateX(10deg) scale(0.9);
+                opacity: 0;
+            }
+        }
+    
+        .WindowContainer.Maximized {
+            width: var(--maximizedWinWidth);
+            height: var(--maximizedWinHeight);
+            left: var(--maximizedWinLeft);
+            top: var(--maximizedWinTop);
+        }
+    
+        .WindowContainer.Maximized > .Window {
+            box-shadow: none;
+        }
+    
+        .WindowContainer.Maximized > .Window > iframe {
+            width: 100%;
+            height: calc(100% - 23px);
+            left: 0; top: 23px;
+        }
+    
+        .WindowContainer.Maximized > .Window > .Header > p {
+            margin: 0px 0;
+        }
+    
+        .WindowContainer.Maximized > .Window > .Header > .ButtonClose,
+        .WindowContainer.Maximized > .Window > .Header > .ButtonRestore,
+        .WindowContainer.Maximized > .Window > .Header > .ButtonMinimize {
+            height: 19px;
+            top: 0;
+        }
+    
+        .WindowContainer > .Window {
+            width: 100%;
+            height: 100%;
+            background: rgb(235, 235, 235);
+            position: absolute;
+            top: 0; left: 0;
+            box-shadow: rgb(0, 0, 0, 0.2) 0px 0px 0px 1px inset;
+        }
+
+        .WindowContainer.focus > .Window {
+            background: var(--winColor);
+        }
+        
+        .WindowContainer.noframe > .Window {
+            background: none;
+            box-shadow: none;
+        }
+    
+        .WindowContainer > .Window > iframe {
+            width: calc(100% - 16px);
+            height: calc(100% - 39px);
+            position: absolute;
+            top: 31px; left: 8px;
+            background: white;
+            border: none;
+            box-shadow: rgb(0, 0, 0, 0.1) 0px 0px 0px 1px;
+        }
+        
+        .WindowContainer.noframe > .Window > iframe {
+            background: none;
+            box-shadow: none;
+            left: 0; top: 0;
+            width: 100%;
+            height: 100%
+        }
+    
+        .WindowContainer > .Window > .iframeOverlay {
+            width: calc(100% - 16px);
+            height: calc(100% - 39px);
+            position: absolute;
+            top: 31px; left: 8px;
+            display: none;
+        }
+
+        .WindowContainer.noframe > .Window > .iframeOverlay {
+            left: 0; top: 0;
+            width: 100%;
+            height: 100%
+        }
+    
+        .WindowContainer > .Window > .blockOverlay > div {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0; left: 0;
+            display: none;
+            background-color: rgb(50,0,0,0.2);
+        }
+    
+        .WindowContainer.blocked > .Window > .blockOverlay > div {
+            display: block;
+        }
+    
+        .WindowContainer > .Window > .Header {
+            width: calc(100%);
+            height: 30px;
+            position: absolute;
+            top: 0; left: 0;
+        }
+        
+        .WindowContainer.noframe > .Window > .Header {
+            display: none
+        } 
+    
+        .WindowContainer > .Window > .Header > p {
+            color: rgb(40, 40, 40);
+            font-size: 16px;
+            margin: 5px 0;
+            pointer-events: none;
+            width: 100%;
+            text-align: center;
+            font-family: 'Segoe UI';
+        }
+    
+        .WindowContainer > .Window > .Header > .ButtonClose {
+            width: 45px;
+            height: 20px;
+            position: absolute;
+            right: 7px; top: 1px;
+            background-color: rgb(199, 80, 80);
+            transition: background-color 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+            z-index: 9
+        }
+    
+        .WindowContainer > .Window > .Header > .ButtonClose > .image {
+            width: 16px;
+            height: 14px;
+            margin: 4px auto;
+            background-position: 1px -291px
+        }
+    
+        .WindowContainer > .Window > .Header > .ButtonRestore > .image {
+            width: 20px;
+            height: 14px;
+            margin: 2px 2px;
+            background-position: 4px -402px
+        }
+    
+        .WindowContainer > .Window > .Header > .ButtonRestore:hover > .image { background-position-y: -416px }
+    
+        .WindowContainer > .Window > .Header > .ButtonMinimize > .image {
+            width: 20px;
+            height: 14px;
+            margin: 2px auto;
+            background-position: 2px -345px;
+        }
+        
+        .WindowContainer > .Window > .Header > .ButtonMinimize:hover > .image { background-position-y: -359px }
+    
+        .WindowContainer > .Window > .Header > .ButtonMaximize > .image {
+            width: 20px;
+            height: 14px;
+            margin: 2px auto;
+            background-position: 1px -637px;
+        }
+        
+        .WindowContainer > .Window > .Header > .ButtonMaximize:hover > .image { background-position-y: -651px }
+    
+        .WindowContainer > .Window > .Header > .ButtonMaximize {
+            width: 25px;
+            height: 20px;
+            position: absolute;
+            right: 53px; top: 1px;
+            transition: background-color 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+            z-index: 9
+        }
+    
+        .WindowContainer > .Window > .Header > .ButtonRestore {
+            width: 25px;
+            height: 20px;
+            position: absolute;
+            right: 53px; top: 1px;
+            display: none;
+            transition: background-color 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+            z-index: 9;
+        }
+    
+        .WindowContainer.Maximized > .Window > .Header > .ButtonRestore {
+            display: block;
+        }
+    
+        .WindowContainer.Maximized > .Window > .Header > .ButtonMaximize {
+            display: none;
+        }
+    
+        .WindowContainer > .Window > .Header > .ButtonMinimize {
+            width: 25px;
+            height: 20px;
+            position: absolute;
+            right: 79px; top: 1px;
+            transition: background-color 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+            z-index: 9
+        }
+    
+        .WindowContainer > .Window > .Header > .ButtonMaximize:hover,
+        .WindowContainer > .Window > .Header > .ButtonRestore:hover,
+        .WindowContainer > .Window > .Header > .ButtonMinimize:hover {
+            background-color: rgb(54, 101, 179);
+        }
+    
+        .WindowContainer > .Window > .Header > .ButtonMaximize:active,
+        .WindowContainer > .Window > .Header > .ButtonRestore:active,
+        .WindowContainer > .Window > .Header > .ButtonMinimize:active {
+            background-color: rgb(61, 96, 153);
+        }
+    
+        .WindowContainer > .Window > .Header > .ButtonClose:hover {
+            background-color: rgb(224, 67, 67);
+        }
+    
+        .WindowContainer > .Window > .Header > .ButtonClose:active {
+            background-color: rgb(153, 61, 61);
+        }
+    
+        .WindowContainer > .Window > .Corner {
+            width: 8px;
+            height: 8px;
+            position: absolute;
+            cursor: nw-resize;
+        }
+    
+        .WindowContainer > .Window > .Corner.tr { right: 0; cursor: ne-resize; }
+        .WindowContainer > .Window > .Corner.br { right: 0; bottom: 0; }
+        .WindowContainer > .Window > .Corner.bl { bottom: 0; cursor: ne-resize; }
+    
+        .WindowContainer > .Window > .Edge {
+            width: calc(100% - 16px);
+            height: 8px;
+            position: absolute;
+            left: 8px; 
+            cursor: n-resize;
+        }
+    
+        .WindowContainer > .Window > .Edge.b { bottom: 0; }
+        .WindowContainer > .Window > .Edge.l { left: 0; top: 8px; width: 8px; height: calc(100% - 16px); cursor: e-resize; }
+        .WindowContainer > .Window > .Edge.r { left: unset; right: 0; top: 8px; width: 8px; height: calc(100% - 16px); cursor: e-resize; }
+    
+        
+        .WindowContainer > .Window > .Corner:active,
+        .WindowContainer > .Window > .Edge:active {
+            scale: 20;
+            z-index: 9
+        }
+        
+        .WindowContainer > .Window > .Header > img.icon {
+            width: 16px;
+            height: 16px;
+            position: absolute;
+            top: 7px;
+            left: 8px;
+            object-fit: contain;
+        }
+
+        @keyframes bootscreenHideAnim {
+            0% {
+                opacity: 1
+            }
+            100% {
+                opacity: 0
+            }
+        }
+
+        .contextMenu {
+            font-size: 12px;
+            font-family: 'Segoe UI';
+            /* width: 200px; */
+            /* height: 200px; */
+            background-color: rgb(240, 240, 240);
+            border: 1px solid rgb(151, 151, 151);
+            position: fixed;
+            display: none;
+            z-index: 99900;
+            padding: 3px;
+            box-shadow: rgba(0, 0, 0, 0.3) 3px 3px 4px;
+        }
+
+        .contextMenu > .item {
+            height: 20px;
+            border: 1px solid transparent;
+        }
+
+        .contextMenu > .item:hover {
+            background: rgb(209, 226, 242);
+            border: 1px solid rgb(120, 174, 229);
+        }
+
+        .contextMenu > div.item > p {
+            margin: 0px 20px 0px 34px;
+        }
+
+        .contextMenu > .item > span {
+            width: 1px;
+            height: 22px;
+            display: block;
+            position: absolute;
+            background: rgba(0, 0, 0, 0.11);
+            left: 29px;
+        }
+
+        .contextMenu > .separator {
+            height: 7px;
+            width: 100%;
+            position: relative;
+        }
+
+        .contextMenu > .separator > span:nth-child(1) {
+            width: 1px;
+            height: 7px;
+            display: block;
+            position: absolute;
+            background: rgba(0, 0, 0, 0.11);
+            left: 26px;
+            top: 1px;
+        }
+
+        .contextMenu > .separator > span:nth-child(2) {
+            width: calc(100% - 25px);
+            height: 1px;
+            display: block;
+            position: absolute;
+            background: rgba(0, 0, 0, 0.11);
+            left: 26px;
+            top: 2px;
+        }
+    </style>
+    
+    <div class="contextMenu contextmenu__"></div>
+
+    `)
+
+    oknared.processTemplate = `
+        <script>
+            ${oknared.fsdriverTemplate}
+
+            const pid = /*PROCESSID*/;
+            const currentVer = ${JSON.stringify(oknared.currentVer)};
+            const currentUser = /*CURRENTUSER*/;
+            const currentLanguage = "/*CURRENTLANG*/";
+
+            const exit = () => {
+                window.parent.postMessage({
+                    message: 'taskexit',
+                    pid: pid,
+                }, '*');
+            }
+    
+            const utf8_to_b64 = ( str ) => {
+                return btoa(unescape(encodeURIComponent( str )));
+            }
+    
+            const b64_to_utf8 = ( str ) => {
+                return decodeURIComponent(escape(window.atob( str )));
+            }
+    
+            const res = /*RESOURCES*/;
+    
+            const getRes = (a) => {
+                return res[a.split('/')[0]][a.split('/')[1]];
+            }
+    
+            const getResFromFile = async (b, a) => {
+                let file = JSON.parse(await fs.readFile(b));
+                let pathWithoutName = b.split('/');
+                pathWithoutName.splice(pathWithoutName.length - 1, 1);
+                pathWithoutName = pathWithoutName.join('/');
+                let filename = b.split('/')[b.split('/').length - 1];
+                let resource;
+                if(await fs.exists(pathWithoutName + '/' + currentLanguage + '/' + filename + '.orml')) {
+                    let localizedResources = JSON.parse(await fs.readFile(pathWithoutName + '/' + currentLanguage + '/' + filename + '.orml'));
+                    if(localizedResources[a.split('/')[0]] && JSON.parse(localizedResources[a.split('/')[0]])[a.split('/')[1]]) {
+                        resource = JSON.parse(localizedResources[a.split('/')[0]])[a.split('/')[1]];
+                    } else {
+                        resource = file.res[a.split('/')[0]][a.split('/')[1]];
+                    }
+                } else {
+                    resource = file.res[a.split('/')[0]][a.split('/')[1]];
+                }
+                return resource;
+            }
+
+            const getIcon = (file, a) => {
+                if(typeof file == "string" && !file.startsWith('{')) {
+                    file = b64_to_utf8(file)
+                    file = JSON.parse(file)
+                } else if(typeof file == "string" && file.startsWith('{')) {
+                    file = JSON.parse(file)
+                }
+                return file[a]
+            }
+
+            function cmdexec(cmd) {
+                window.parent.postMessage({
+                    message: "cmdexec",
+                    cmd: cmd,
+                    user: currentUser
+                });
+            }
+
+            async function parsePath(path) {
+                let regex = /%[^%]*%/g
+                let matches = path.match(regex)
+                if(matches == null) matches = []
+                path = path.replaceAll('\\\\', '/')
+                for await(let elem of matches) {
+                    let replacestr = ''
+                    let elem2 = elem.toLowerCase()
+                    if(elem2 == "%userprofile%") replacestr = (await reg.readKey('HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Windows NT/CurrentVersion/ProfileList/' + currentUser.sid + '/ProfileImagePath')).data
+                    if(elem2 == "%systemroot%" || elem2 == "%windir%") replacestr = '/Windows'
+                    path = path.replace(elem, replacestr)
+                }
+
+                return path
+            }
+    
+            const task = {}
+            task.create = async (path, args) => {
+                if(args == null) { args = {} }
+                if(args.user == null) { args.user = currentUser }
+                window.parent.postMessage({
+                    message: 'eval',
+                    eval: "task.create('" + path + "', " + JSON.stringify(args) + ")"
+                })
+            }
+            task.kill = async (_pid) => {
+                window.parent.postMessage({
+                    message: 'eval',
+                    eval: "task.kill(" + _pid + ")"
+                })
+            }
+            task.tasks = /*CURRENTTASKS*/
+    
+            const dwm = {};
+            dwm.create = () => { throw "Можно создавать окна только вне процесса" };
+            // dwm.create = async (args) => 
+            //     new Promise(async (resolve, reject) => {
+            //         let eventlistener = (event) => {
+            //             if(event.data.message == 'result') {
+            //                 window.removeEventListener('message', eventlistener)
+            //                 resolve(event.data.result)
+            //             }
+            //         }
+            //         window.addEventListener('message', eventlistener)
+            //         args.pid = pid
+            //         args.res = res
+            //         if(args.user == null) { args.user = currentUser }
+            //         window.parent.postMessage({
+            //             message: 'eval',
+            //             eval: \`
+            //                     dwm.create(\${JSON.stringify(args)}).then(result => {
+            //                         $("#\${thisFrameId}")[0].contentWindow.postMessage({
+            //                             message: 'result',
+            //                             result: result
+            //                         }, '*')
+            //                     })
+            //                 \`
+            //     })
+            //     }, '*');
+            dwm.close = async (_wid) => {
+                window.parent.postMessage({
+                    message: 'eval',
+                    eval: "oknared.dwm.close(" + _wid + ")"
+                })
+            }   
+            dwm.max = async (_wid) => {
+                window.parent.postMessage({
+                    message: 'eval',
+                    eval: "oknared.dwm.max(" + _wid + ")"
+                })
+            }  
+            dwm.res = async (_wid) => {
+                window.parent.postMessage({
+                    message: 'eval',
+                    eval: "oknared.dwm.res(" + _wid + ")"
+                })
+            }    
+            dwm.min = async (_wid) => {
+                window.parent.postMessage({
+                    message: 'eval',
+                    eval: "oknared.dwm.min(" + _wid + ")"
+                })
+            }
+            dwm.windows = /*CURRENTWINDOWS*/;
+            
+            dwm.focus = async (_wid) => {
+                window.parent.postMessage({
+                    message: 'eval',
+                    eval: 'oknared.dwm.focus(' + _wid + ')',
+                })
+            }
+            
+            async function setWindowSize(size) {
+                window.parent.postMessage({
+                    message: 'eval',
+                    eval: \`
+                        let size = \${JSON.stringify(size)}
+                        if(size.x) $('#WindowContainer_\${wid}').css('--width',  size.x)
+                        if(size.y) $('#WindowContainer_\${wid}').css('--height', size.y)
+                    \`,
+                })
+            }
+            async function setWindowPos(pos) {
+                window.parent.postMessage({
+                    message: 'eval',
+                    eval: \`
+                        let pos = \${JSON.stringify(pos)}
+                        if(pos.x) $('#WindowContainer_\${wid}').css('--posX', pos.x)
+                        if(pos.y) $('#WindowContainer_\${wid}').css('--posY', pos.y)
+                    \`,
+                })
+            }
+
+            window.addEventListener('message', (e) => {
+                if(e.data.message == "windowCreated") {
+                    dwm.windows = e.data.allwindows;
+                    if(typeof dwm.windows == 'string') dwm.windows = JSON.parse(dwm.windows);
+                    document.body.dispatchEvent(new CustomEvent('dwm_windowcreated', {
+                        detail: {
+                            wid: e.data.wid
+                        }
+                    }))
+                } else if(e.data.message == "taskCreated") {
+                    task.tasks = e.data.alltasks;
+                    if(typeof task.tasks == 'string') task.tasks = JSON.parse(task.tasks);
+                    document.body.dispatchEvent(new CustomEvent('task_taskcreated', {
+                        detail: {
+                            pid: e.data.pid
+                        }
+                    }))
+                } else if(e.data.message == "dwm_iconchanged") {
+                    dwm.windows = e.data.allwindows;
+                    if(typeof dwm.windows == 'string') dwm.windows = JSON.parse(dwm.windows);
+                    document.body.dispatchEvent(new CustomEvent('dwm_iconchanged', {
+                        detail: {
+                            wid: e.data.wid
+                        }
+                    }))
+                } else if(e.data.message == "dwm_windowclosed") {
+                    dwm.windows = e.data.allwindows;
+                    if(typeof dwm.windows == 'string') dwm.windows = JSON.parse(dwm.windows);
+                    document.body.dispatchEvent(new CustomEvent('dwm_windowclosed', {
+                        detail: {
+                            wid: e.data.wid,
+                            window: e.data.window
+                        }
+                    }))
+                } else if(e.data.message == "dwm_windowfocuschange") {
+                    dwm.windows = e.data.allwindows;
+                    if(typeof dwm.windows == 'string') dwm.windows = JSON.parse(dwm.windows);
+                    document.body.dispatchEvent(new CustomEvent('dwm_windowfocuschange', {
+                        detail: {
+                            wid: e.data.wid,
+                            window: e.data.window
+                        }
+                    }))
+                } else if(e.data.message == "dwm_windowheaderchanged") {
+                    dwm.windows = e.data.allwindows;
+                    if(typeof dwm.windows == 'string') dwm.windows = JSON.parse(dwm.windows);
+                    document.body.dispatchEvent(new CustomEvent('dwm_windowfocuschange', {
+                        detail: {
+                            wid: e.data.wid,
+                            window: e.data.window
+                        }
+                    }))
+                } else if(e.data.message == "eval") {
+                    eval(e.data.eval)
+                }
+            });
+            
+            var thisFrameId = "ProcessFrame_" + pid;
+
+            const reg = {};
+            reg.readHive = async (path) => 
+                new Promise(async (resolve, reject) => {
+                    let eventlistener = (event) => {
+                        if(event.data.message == 'result') {
+                            window.removeEventListener('message', eventlistener)
+                            resolve(event.data.result)
+                        }
+                    }
+                    window.addEventListener('message', eventlistener)
+                    path = path.replace('HKEY_CURRENT_USER', 'HKEY_USERS/' + currentUser.sid)
+                    window.parent.postMessage({
+                        message: 'eval',
+                        eval: \`
+                            let result = oknared.reg.readHive(\${JSON.stringify(path)})
+                            $("#\${thisFrameId}")[0].contentWindow.postMessage({
+                                message: 'result',
+                                result: result
+                            }, '*')
+                        \`
+                    })
+                }, '*');
+            reg.readKey = async (path) => 
+                new Promise(async (resolve, reject) => {
+                    let eventlistener = (event) => {
+                        if(event.data.message == 'result') {
+                            window.removeEventListener('message', eventlistener)
+                            resolve(event.data.result)
+                        }
+                    }
+                    window.addEventListener('message', eventlistener)
+                    path = path.replace('HKEY_CURRENT_USER', 'HKEY_USERS/' + currentUser.sid)
+                    window.parent.postMessage({
+                        message: 'eval',
+                        eval: \`
+                            let result = oknared.reg.readKey(\${JSON.stringify(path)})
+                            $("#\${thisFrameId}")[0].contentWindow.postMessage({
+                                message: 'result',
+                                result: result
+                            }, '*')
+                        \`
+                    })
+                }, '*');
+            reg.createHive = async (path) => 
+                new Promise(async (resolve, reject) => {
+                    let eventlistener = (event) => {
+                        if(event.data.message == 'result') {
+                            window.removeEventListener('message', eventlistener)
+                            resolve(event.data.result)
+                        }
+                    }   
+                    window.addEventListener('message', eventlistener)
+                    path = path.replace('HKEY_CURRENT_USER', 'HKEY_USERS/' + currentUser.sid)
+                    window.parent.postMessage({
+                        message: 'eval',
+                        eval: \`
+                            let result = oknared.reg.createHive(\${JSON.stringify(path)})
+                            $("#\${thisFrameId}")[0].contentWindow.postMessage({
+                                message: 'result',
+                                result: result
+                            }, '*')
+                        \`
+                    })
+                }, '*');
+                reg.writeKey = async (path, a, b) => 
+                    new Promise(async (resolve, reject) => {
+                        let eventlistener = (event) => {
+                            if(event.data.message == 'result') {
+                                window.removeEventListener('message', eventlistener)
+                                resolve(event.data.result)
+                            }
+                        }
+                        window.addEventListener('message', eventlistener)
+                        path = path.replace('HKEY_CURRENT_USER', 'HKEY_USERS/' + currentUser.sid)
+                        window.parent.postMessage({
+                            message: 'eval',
+                            eval: \`
+                                let result = oknared.reg.writeKey(\${JSON.stringify(path)}, \${JSON.stringify(a)}, \${JSON.stringify(b)})
+                                $("#\${thisFrameId}")[0].contentWindow.postMessage({
+                                    message: 'result',
+                                    result: result
+                                }, '*')
+                            \`
+                        })
+                    }, '*');
+            reg.removeHive = async (path) => 
+                new Promise(async (resolve, reject) => {
+                    let eventlistener = (event) => {
+                        if(event.data.message == 'result') {
+                            window.removeEventListener('message', eventlistener)
+                            resolve(event.data.result)
+                        }
+                    }
+                    window.addEventListener('message', eventlistener)
+                    path = path.replace('HKEY_CURRENT_USER', 'HKEY_USERS/' + currentUser.sid)
+                    window.parent.postMessage({
+                        message: 'eval',
+                        eval: \`
+                            let result = oknared.reg.removeHive(\${JSON.stringify(path)})
+                            $("#\${thisFrameId}")[0].contentWindow.postMessage({
+                                message: 'result',
+                                result: result
+                            }, '*')
+                        \`
+                    })
+                }, '*');
+            reg.removeKey = async (path) => 
+                new Promise(async (resolve, reject) => {
+                    let eventlistener = (event) => {
+                        if(event.data.message == 'result') {
+                            window.removeEventListener('message', eventlistener)
+                            resolve(event.data.result)
+                        }
+                    }
+                    window.addEventListener('message', eventlistener)
+                    path = path.replace('HKEY_CURRENT_USER', 'HKEY_USERS/' + currentUser.sid)
+                    window.parent.postMessage({
+                        message: 'eval',
+                        eval: \`
+                            let result = oknared.reg.removeKey(\${JSON.stringify(path)})
+                            $("#\${thisFrameId}")[0].contentWindow.postMessage({
+                                message: 'result',
+                                result: result
+                            }, '*')
+                        \`
+                    })
+                }, '*');
+            
+            (()=>{
+                const errors = {};
+                const errorF = (e) => {
+                    if(errors[(e.stack??e)] > 10){
+                        window.parent.postMessage({
+                            message: "eval",
+                            eval:'oknared.crash("'+e.stack??e+'")'
+                        });
+                    }
+                    errors[(e.stack??e)]++;
+                    cmdexec('root/Windows/system32/mmsgbox.ore '+(e.stack??e));
+                }
+                window.onerror = errorF;
+            })();
+
+            //**************************** INI FILE PARSE **************************************
+            window.parseIni = (ini) => {
+                ini = ini.replaceAll('\\r\\n', '\\n')
+                let iniArr = ini.split('\\n')
+                let currentDir = ''
+                let result = {}
+                for(let i = 0; i < iniArr.length; i++) {
+                    if(!iniArr[i] == '') {
+                        if(iniArr[i].startsWith('[')) {
+                            currentDir = iniArr[i].replace('[', '').replace(']', '')
+                        } else if(iniArr[i].split('=') != -1) {
+                            if(result[currentDir] == null) {
+                                result[currentDir] = {}
+                            }
+                            let q = iniArr[i].split('=')
+                            result[currentDir][q[0]] = q[1]
+                        }
+                    }
+                }
+
+                return result
+            }
+            //**********************************************************************************
+
+            const args = /*ARGUMENTS*/
+
+            /*WINDOW?*/
+
+            /*SCRIPT*/
+        </script>
+    `
+
+    oknared.windowTemplate =
+        oknared.processTemplate.replace(
+            '/*WINDOW?*/',
+            `
+                ${oknared.jqueryTemplate}
+                
+                const wid = /*WINDOWID*/
+    
+                const close = () => {
+                    window.parent.postMessage({
+                        message: 'eval',
+                        eval: "oknared.dwm.close(" + wid + ")"
+                    }, '*')
+                }
+
+                document.addEventListener('click', (e) => {
+                    window.parent.postMessage({
+                        message: 'eval',
+                        eval: 'oknared.dwm.focus(' + wid + ')'
+                    }, '*')
+                    window.parent.postMessage({
+                        message: 'frameClick',
+                        wid: wid
+                    }, '*')
+                })
+
+                document.addEventListener('contextmenu', (e) => {
+                    window.parent.postMessage({
+                        message: 'eval',
+                        eval: 'oknared.dwm.focus(' + wid + ')'
+                    }, '*')
+                    window.parent.postMessage({
+                        message: 'frameClick',
+                        wid: wid
+                    }, '*')
+                })
+
+                thisFrameId = "WindowFrame_" + wid
+
+                const contextMenu = async (params) =>  
+                    new Promise(async (resolve, reject) => {
+                        window.parent.postMessage({
+                            message: 'contextmenu',
+                            params: params,
+                            user: currentUser,
+                            wid: wid,
+                            pid: pid
+                        })
+                        let eventlistener = (e) => {
+                            let data = e.data
+                            if(data.message == "contextMenuResult") {
+                                document.removeEventListener('message', eventlistener)
+                                if(data.result == false) {
+                                    resolve({
+                                        result: null,
+                                        canceled: true
+                                    })
+                                } else {
+                                    resolve({
+                                        result: data.result,
+                                        canceled: false
+                                    })
+                                }
+                            }
+                        }
+                        window.addEventListener('message', eventlistener)
+                    });
+
+                const menubar = {}
+                menubar.currentMenu = []
+                menubar.setMenu = (menu) => {
+                    $('.menubar').remove()
+                    $('body').prepend('<div class="menubar"></div>')
+                    for(let i = 0; i < menu.length; i++) {
+                        if(menu[i].type == 'menu') {
+                            $('.menubar').append(\`
+                                <div onclick="menubar.showMenu(\${i})" class="elem">\${menu[i].text}</div>  
+                            \`)
+                        }
+                    }
+                    menubar.currentMenu = menu
+                }
+                menubar.showMenu = async (menuid) => {
+                    setTimeout(async () => {
+                        let result = await contextMenu({
+                            x: $('.menubar > .elem:nth-child(' + (menuid + 1) + ')').offset().left,
+                            y: 20,
+                            content: menubar.currentMenu[menuid].content
+                        })
+
+                        if(!result.canceled) {
+                            document.body.dispatchEvent(new CustomEvent('menubarselect', {
+                                detail: {
+                                    selectedItem: result.result
+                                }
+                            }))
+                        }
+                    }, 10)
+                }
+
+                function setWindowHeader(text) {
+                    window.parent.postMessage({
+                        message: 'eval',
+                        eval: \`
+                            dwm.windows[\${wid}].args.windowConfig.title = '\${text}'
+                            for(let i = 0; i < $('iframe').length; i++) {
+                                let elem = $('iframe')[i]
+                                elem.contentWindow.postMessage({
+                                    message: 'dwm_windowheaderchanged',
+                                    wid: \${wid},
+                                    win: dwm.windows[\${wid}],
+                                    allwindows: dwm.windows
+                                })
+                            }
+                            $('#WindowContainer_\${wid} > .Window > .Header > p').html('\${text}')
+                        \`
+                    })
+                }
+
+                function setWindowIcon(icon, awid) {
+                    let bwid = wid
+                    if(awid) bwid = wid
+                    window.parent.postMessage({
+                        message: 'eval',
+                        eval: \`
+                            oknared.dwm.updateIcon(\${bwid}, '\${icon}')
+                        \`
+                    })
+                }
+
+                //**************************************************************************************************************************
+                const openFileDialog = async (params)  => 
+                    new Promise(async (resolve, reject) => {
+                        blockWindow()
+                        dwm.create({
+                            content: oknared.b64_to_utf8(await getResFromFile('/Windows/system32/explorerframe.el', 'HTML/1')),
+                            args: ['openFileDialog', params.filetypes, params.defaultLocation, wid, pid],
+                            windowConfig: {
+                                width: '840px',
+                                height: '500px',
+                                title: params.header,
+                                displayOnTaskbar: false,
+                            },
+                        })
+                        var eventlistener = (e) => {
+                            if(e.data.message == 'dialogresult') {
+                                window.removeEventListener('message', eventlistener)
+                                unblockWindow()
+                                if(e.data.canceled) {
+                                    resolve({canceled: true})
+                                } else {
+                                    resolve({canceled: false, result: e.data.filepath})
+                                }
+                            }
+                        }
+                        window.addEventListener('message', eventlistener)
+                    })
+                //**************************************************************************************************************************
+            `
+        ) +
+        `
+            <style>
+                body {
+                    font-family: "Segoe UI"
+                }
+
+                .progress-ring {
+                    position: relative;
+                    padding-top: 8px;
+                    width: 40px;
+                    height: 40px;
+                    margin: auto;
+                }
+
+                .progress-ring .progress-ring__wrap {
+                    position: absolute;
+                    width: 38px;
+                    height: 38px;
+                }
+
+                .progress-ring .progress-ring__wrap .progress-ring__circle {
+                    transform: rotate(225deg);
+                    animation-iteration-count: infinite;
+                    animation-name: orbit;
+                    animation-duration: 4000ms;
+                    width: 38px;
+                    height: 38px;
+                    opacity: 0;
+                }
+
+                .progress-ring .progress-ring__wrap .progress-ring__circle:after {
+                    content: '';
+                    position: absolute;
+                    width: 6px;
+                    height: 6px;
+                    border-radius: 6px;
+                    background: #ffffff;
+                }
+
+                .progress-ring .progress-ring__wrap:nth-child(2) {
+                    transform: rotate(-14deg);
+                }
+                .progress-ring .progress-ring__wrap:nth-child(2) .progress-ring__circle {
+                    animation-delay: 133.33333333ms;
+                }
+                .progress-ring .progress-ring__wrap:nth-child(3) {
+                    transform: rotate(-28deg);
+                }
+                .progress-ring .progress-ring__wrap:nth-child(3) .progress-ring__circle {
+                    animation-delay: 266.66666667ms;
+                }
+                .progress-ring .progress-ring__wrap:nth-child(4) {
+                    transform: rotate(-42deg);
+                }
+                .progress-ring .progress-ring__wrap:nth-child(4) .progress-ring__circle {
+                    animation-delay: 400ms;
+                }
+                .progress-ring .progress-ring__wrap:nth-child(5) {
+                    transform: rotate(-56deg);
+                }
+                .progress-ring .progress-ring__wrap:nth-child(5) .progress-ring__circle {
+                    animation-delay: 533.33333333ms;
+                }
+
+                @keyframes orbit {
+                    0% {
+                        transform: rotate(225deg);
+                        opacity: 1;
+                        animation-timing-function: ease-out;
+                    }
+                    7% {
+                        transform: rotate(345deg);
+                        animation-timing-function: linear;
+                    }
+                    35% {
+                        transform: rotate(495deg);
+                        animation-timing-function: ease-in-out;
+                    }
+                    42% {
+                        transform: rotate(690deg);
+                        animation-timing-function: linear;
+                    }
+                    70% {
+                        transform: rotate(835deg);
+                        opacity: 1;
+                        animation-timing-function: linear;
+                    }
+                    76% {
+                        opacity: 1;
+                    }
+                    77% {
+                        transform: rotate(955deg);
+                        animation-timing-function: ease-in;
+                    }
+                    78% {
+                        transform: rotate(955deg);
+                        opacity: 0;
+                    }   
+                    100% {
+                        transform: rotate(955deg);
+                        opacity: 0;
+                    }
+                }
+            </style>
+            <!--HTMLCONT-->
+        `
+
+    $('body').append('<div id="ProcessContainer"></div>');
+    $('body').append('<div id="WindowContainer"></div>');
+
+    let maxid = 0;
+
+    oknared.task = {};
+    oknared.task.tasks = {};
+    oknared.task.create = async(path, args) => {
+        let id = maxid;
+        maxid++;
+        let file = JSON.parse(await fs.readFile(path));
+        let elem = document.createElement('iframe');
+        let pathWithoutName = path.split('/');
+        pathWithoutName.splice(pathWithoutName.length - 1, 1)
+        pathWithoutName = pathWithoutName.join('/')
+        let filename = path.split('/')[path.split('/').length - 1]
+        if(args == null) {
+            args = {
+                args: [],
+            }
+        } else if(args.args == null) {
+            args.args = [];
+        } else if(args.user == null) {
+            args.user = systemUserInfo;
+        }
+        let resources = file.res;
+        if(await fs.exists(pathWithoutName + '/' + currentLanguage + '/' + filename + '.orml')) {
+            let localizedResources = JSON.parse(await fs.readFile(pathWithoutName + '/' + currentLanguage + '/' + filename + '.orml'));
+            let objkeys = Object.keys(localizedResources);
+            if(objkeys == null) objkeys = [];
+            for(let i = 0; i < objkeys.length; i++) {
+                resources[objkeys[i]] = JSON.parse(localizedResources[objkeys[i]]);
+            }
+        }
+        elem.srcdoc = oknared.processTemplate
+            // .replace('/*SCRIPT*/', oknared.b64_to_utf8(file.main))
+            .replace('/*ARGUMENTS*/', JSON.stringify(args.args))
+            .replaceAll('/*PROCESSID*/', id)
+            .replace('/*RESOURCES*/', JSON.stringify(resources))
+            .replace('/*CURRENTLANG*/', currentLanguage)
+            .replace(
+                '/*CURRENTUSER*/',
+                JSON.stringify({
+                    sid: args.user.sid,
+                    rid: args.user.rid,
+                    name: args.user.name,
+                })
+            )
+            .replace('/*CURRENTTASKS*/', JSON.stringify(oknared.task.tasks))
+            .replace('/*CURRENTWINDOWS*/', JSON.stringify(oknared.dwm.windows));
+        elem.id = 'ProcessFrame_' + id;
+        elem.style.display = 'none';
+        $('#ProcessContainer')[0].append(elem);
+        oknared.log('Created Process with ID ' + id);
+
+        oknared.task.tasks[id] = {
+            path: path,
+        }
+
+        const proc = {
+            pid: id,
+            killed: false,
+            user: systemUserInfo,
+            async run(path, ...args){
+                return await oknared.task.create(path, {
+                    args, user: this.user
+                });
+            },
+            onexit: ()=>{},
+            kill(){
+                this.killed = true;
+                timeouts.forEach(i => clearTimeout(i));
+                timeouts.forEach(i => clearInterval(i));
+                // windows.forEach(w => {if(!w.isClosed)w.close()});
+                this.onexit();
+                return true;
+            }
+        }
+
+        for(let i = 0; i < $('iframe').length; i++) {
+            let elem = $('iframe')[i];
+            elem.contentWindow.postMessage({
+                message: 'taskCreated',
+                pid: id,
+                task: oknared.task.tasks[id],
+                alltasks: oknared.task.tasks,
+            });
+        }
+
+        let mn, code = oknared.b64_to_utf8(file.main);
+        let timeouts = [], intervals = [], windows = [];
+
+        const stt = function(){
+            if(proc.killed) return;
+            let id = window.setTimeout(...arguments);
+            timeouts.push(id);
+        }
+        const sti = function(){
+            if(proc.killed) return;
+            let id = window.setInterval(...arguments);
+            intervals.push(id);
+        }
+        
+        function clone(obj){
+            let result = {};
+
+            for(let key in obj){
+                if(typeof key == 'object') result[key] = clone(obj[key]);
+                else result[key] = obj[key];
+            }
+
+            return result;
+        }
+
+        const or = clone(oknared);
+        delete or.buildRegistry;
+
+        // try{
+            await(async ()=>{
+                const oknared = or;
+
+                const res = resources;
+                const getRes = (a) => {
+                    return res[a.split('/')[0]][a.split('/')[1]];
+                }
+                const getResFromFile = async (b, a) => {
+                    let file = JSON.parse(await fs.readFile(b));
+                    let pathWithoutName = b.split('/');
+                    pathWithoutName.splice(pathWithoutName.length - 1, 1);
+                    pathWithoutName = pathWithoutName.join('/');
+                    let filename = b.split('/')[b.split('/').length - 1];
+                    let resource;
+                    if(await fs.exists(pathWithoutName + '/' + currentLanguage + '/' + filename + '.orml')) {
+                        let localizedResources = JSON.parse(await fs.readFile(pathWithoutName + '/' + currentLanguage + '/' + filename + '.orml'));
+                        if(localizedResources[a.split('/')[0]] && JSON.parse(localizedResources[a.split('/')[0]])[a.split('/')[1]]) {
+                            resource = JSON.parse(localizedResources[a.split('/')[0]])[a.split('/')[1]];
+                        } else {
+                            resource = file.res[a.split('/')[0]][a.split('/')[1]];
+                        }
+                    } else {
+                        resource = file.res[a.split('/')[0]][a.split('/')[1]];
+                    }
+                    return resource;
+                }
+
+                const utf8_to_b64 = oknared.utf8_to_b64;
+                const b64_to_utf8 = oknared.b64_to_utf8;
+                const task = oknared.task;
+                const dwm = {...oknared.dwm, create: null};
+                dwm.create = async(a) => {
+                    if(!a) a = {};
+                    a.user = args.user;
+                    a.pid = id;
+                    a.res = resources;
+                    const win = await oknared.dwm.create(a);
+                    return win;
+                }
+
+                const process = proc;
+                const setTimeout = stt, setInterval = sti;
+                
+                eval(code);
+                
+                mn = await main(args.args);
+            })();
+        // }catch(e){
+        //     // if(!(e instanceof _AppHostRaisedSystemExit)){
+        //     //     await bcwd.shell.infoBox('AppHost', `Ошибка: ${e}`);
+        //     // }
+        //     oknared.crash(e);
+        // }
+
+        // return {
+        //     result: mn,
+        //     pid: id,
+        // }
+        return mn;
+    }
+    oknared.task.kill = (pid) => {
+        $('#ProcessFrame_' + pid).remove()
+        oknared.log('Killed Process with ID ' + pid)
+        delete oknared.task.tasks[pid]
+        for(let [title, content] of Object.entries(oknared.dwm.windows)) {
+            if(oknared.dwm.windows[title].args.pid == pid) {
+                oknared.dwm.close(title)
+            }
+        }
+    }
+
+    oknared.returnContextMenuResult = (wid, result) => {
+        oknared.log('ContextMenu: sending result to window with WID ' + wid)
+        try {
+            $('#WindowFrame_' + wid)[0].contentWindow.postMessage({
+                message: 'contextMenuResult',
+                result: result,
+            })
+            $('.contextMenu').css('display', 'none')
+        } catch {
+            $('.contextMenu').css('display', 'none')
+        }
+    }
+
+    function contextMenu(params) {
+        oknared.log('ContextMenu from window with WID ' + params.wid)
+
+        $('.contextMenu').html('')
+        let x, y
+        if(params.params.pageX) x = pageX
+        else if(params.params.x || params.params.x == 0) x = params.params.x + $('#WindowFrame_' + params.wid).offset().left
+        if(params.params.pageY) y = pageY
+        else if(params.params.y || params.params.y == 0) y = params.params.y + $('#WindowFrame_' + params.wid).offset().top
+        $('.contextMenu').css('top', y + 'px')
+        $('.contextMenu').css('left', x + 'px')
+
+        for(let i = 0; i < params.params.content.length; i++) {
+            let elem = params.params.content[i]
+            let icon = ''
+            if(elem.icon) icon = `<img class="contextmenu__" src="${elem.icon}">`
+            if(elem.type == 'item') {
+                $('.contextMenu').append(`
+                    <div class="item contextmenu__" onclick="returnContextMenuResult('${params.wid}', '${elem.result}')">${icon}<span class="contextmenu__"></span><p class="contextmenu__">${elem.text.replaceAll('&', '')}</p></div>
+                `)
+            } else if(elem.type == 'separator') {
+                $('.contextMenu').append(`
+                    <div class="separator contextmenu__"><span class="contextmenu__"></span class="contextmenu__"><span></span></div>
+                `)
+            }
+        }
+
+        let eventlistener1 = (e) => {
+            if(e.srcElement.className.indexOf('contextmenu__') == -1) {
+                document.removeEventListener('click', eventlistener1)
+                document.body.removeEventListener('FrameClick', eventlistener2)
+                returnContextMenuResult(params.wid, false)
+            } else {
+                document.removeEventListener('click', eventlistener1)
+                document.body.removeEventListener('FrameClick', eventlistener2)
+            }
+        }
+        let eventlistener2 = (e) => {
+            document.removeEventListener('click', eventlistener1)
+            document.body.removeEventListener('FrameClick', eventlistener2)
+            returnContextMenuResult(params.wid, false)
+        }
+        document.addEventListener('click', eventlistener1)
+        document.body.addEventListener('FrameClick', eventlistener2)
+
+        $('.contextMenu').css('display', 'block')
+    }
+    
+    oknared.parsePath = (path, user) => {
+        let regex = /%[^%]*%/g
+        let matches = path.match(regex)
+        if(matches == null) matches = []
+        path = path.replaceAll('\\', '/')
+        matches.forEach(elem => {
+            let replacestr = ''
+            let elem2 = elem.toLowerCase()
+            if(elem2 == "%userprofile%") replacestr = (oknared.reg.readKey('HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Windows NT/CurrentVersion/ProfileList/' + user.sid + '/ProfileImagePath')).data
+            if(elem2 == "%systemroot%" || elem2 == "%windir%") replacestr = '/Windows'
+            path = path.replace(elem, replacestr)
+        })
+
+        return path
+    }
+
+    oknared.getResFromFile = async (b, a) => {
+        let file = JSON.parse(await fs.readFile(b))
+        let pathWithoutName = b.split('/')
+        pathWithoutName.splice(pathWithoutName.length - 1, 1)
+        pathWithoutName = pathWithoutName.join('/')
+        let filename = b.split('/')[b.split('/').length - 1]
+        let resource
+        if(await fs.exists(pathWithoutName + '/' + currentLanguage + '/' + filename + '.orml')) {
+            let localizedResources = JSON.parse(await fs.readFile(pathWithoutName + '/' + currentLanguage + '/' + filename + '.orml'))
+            if(localizedResources[a.split('/')[0]] && JSON.parse(localizedResources[a.split('/')[0]])[a.split('/')[1]]) {
+                resource = JSON.parse(localizedResources[a.split('/')[0]])[a.split('/')[1]]
+            } else {
+                resource = file.res[a.split('/')[0]][a.split('/')[1]]
+            }
+        } else {
+            resource = file.res[a.split('/')[0]][a.split('/')[1]]
+        }
+        return resource
+    }
+
+    oknared.cmdexec = async (cmd, cmdargs) => {
+        oknared.log('Kernel: Executing cmdline: \n' + cmd)
+        if(cmdargs == null) {
+            cmdargs = {
+                user: systemUserInfo,
+            }
+        }
+        cmd = oknared.parsePath(cmd, cmdargs.user)
+        const regex = /(\"[^\"]*\"|\S+)/g
+        const matches = cmd.match(regex)
+        let args = matches.map((match) => match.replace(/^"|"$/g, ''))
+        path = args[0]
+        args.splice(0, 1)
+        let ext = path.split('.')[path.split('.').length - 1]
+        
+        if(ext == 'ore') {
+            oknared.task.create(path, {
+                args: args,
+                user: cmdargs.user,
+            })
+        } else if(ext == 'elnk') {
+            let shortcut = JSON.parse(await fs.readFile(path))
+            oknared.log('Kernel: Cmdline path is shortcut!')
+            oknared.cmdexec(shortcut.path, cmdargs)
+        } else if(typeof oknared.reg.readKey('HKEY_CLASSES_ROOT/.' + ext + '/shell/open/command/@') != 'string') {
+            oknared.cmdexec(oknared.reg.readKey('HKEY_CLASSES_ROOT/.' + ext + '/shell/open/command/@').data.replace('%1', "\"" + path + "\""), cmdargs)
+        }
+    }
+
+    window.addEventListener('message', (event) => {
+        switch (event.data.message) {
+            case 'taskexit':
+                oknared.task.kill(event.data.pid);
+                break
+            case 'eval':
+                eval(event.data.eval);
+                break
+            case 'contextmenu':
+                contextMenu(event.data);
+                break
+            case 'frameClick':
+                document.body.dispatchEvent(
+                    new CustomEvent('FrameClick', {
+                        detail: {},
+                    })
+                );
+                break
+            case 'cmdexec':
+                oknared.cmdexec(event.data.cmd, {
+                    user: event.data.user,
+                });
+                break
+        }
+    })
+
+    oknared.getIcon = (file, a) => {
+        if(typeof file == 'string' && !file.startsWith('{')) {
+            file = oknared.b64_to_utf8(file)
+            file = JSON.parse(file)
+        } else if(typeof file == 'string' && file.startsWith('{')) {
+            file = JSON.parse(file)
+        }
+        return file[a]
+    }
+
+    //**************************** DESKTOP WINDOW MANAGER ******************************
+
+    oknared.dwm = {}
+    oknared.dwm.res = {}
+    oknared.dwm.windows = {}
+    oknared.dwm.maxzindex = 200
+    oknared.dwm.create = async(args) => {
+        let id = maxid;
+        maxid++;
+
+        let hidestyles = ""
+        if(args.windowConfig) {
+            if(args.windowConfig.hide) {
+                hidestyles = "display:none;";
+            }
+        }
+
+        if(!args.user) args.user = systemUserInfo;
+
+        let elem = `
+            <div class="WindowContainer" class="WindowContainer_${args.pid}" style="${hidestyles}" id="WindowContainer_${id}">
+                <div class="Window" id="Window_${id}">
+                    <div class="Header">
+                        <p>Window</p>
+                        <img class="icon">
+                        <div class="ButtonClose" onclick="oknared.dwm.close(${id})"><div class="image"></div></div>
+                        <div class="ButtonMaximize" onclick="oknared.dwm.max(${id})"><div class="image"></div></div>
+                        <div class="ButtonRestore" onclick="oknared.dwm.res(${id})"><div class="image"></div></div>
+                        <div class="ButtonMinimize" onclick="oknared.dwm.min(${id})"><div class="image"></div></div>
+                        <div></div>
+                    </div>
+                    <div class="Corner tl"></div>
+                    <div class="Corner tr"></div>
+                    <div class="Corner bl"></div>
+                    <div class="Corner br"></div>
+                    <div class="Edge t"></div>
+                    <div class="Edge r"></div>
+                    <div class="Edge b"></div>
+                    <div class="Edge l"></div>
+                    <iframe id="WindowFrame_${id}"></iframe>
+                    <div class="iframeOverlay"></div>
+                    <div class="blockOverlay"><div></div></div>
+                </div>
+            </div>
+        `;
+        $('#WindowContainer').append(elem);
+
+        $('#WindowContainer_' + id + ' iframe')[0].srcdoc = oknared.windowTemplate
+            .replaceAll('/*WINDOWID*/', id)
+            .replaceAll('/*PROCESSID*/', args.pid)
+            .replace('/*RESOURCES*/', JSON.stringify(args.res))
+            .replaceAll('<!--HTMLCONT-->', args.content)
+            .replace('/*CURRENTLANG*/', currentLanguage)
+            .replace(
+                '/*CURRENTUSER*/',
+                JSON.stringify({
+                    sid: args.user.sid,
+                    rid: args.user.rid,
+                    name: args.user.name,
+                })
+            )
+            .replace('/*CURRENTTASKS*/', JSON.stringify(oknared.task.tasks))
+            .replace('/*CURRENTWINDOWS*/', JSON.stringify(oknared.dwm.windows))
+            .replace('/*ARGUMENTS*/', JSON.stringify(args.args));
+
+        delete args.content;
+        oknared.dwm.windows[id] = {
+            type: 'Window',
+            args: args,
+            pid: args.pid,
+            icon: '',
+        }
+
+        if(args.windowConfig) {
+            if(args.windowConfig.resizable == false) {
+                $(`#WindowContainer_${id} .Edge, #WindowContainer_${id} .Corner`).css('display', 'none')
+            }
+            if(args.windowConfig.width) {
+                $(`#WindowContainer_${id}`).css('--width', args.windowConfig.width)
+            }
+            if(args.windowConfig.height) {
+                $(`#WindowContainer_${id}`).css('--height', args.windowConfig.height)
+            }
+            if(args.windowConfig.title) {
+                $(`#WindowContainer_${id} .Header > p`).html(args.windowConfig.title)
+            }
+            if(args.windowConfig.onlyClose) {
+                $(`#WindowContainer_${id} .Header > .ButtonMaximize`).css('display', 'none')
+                $(`#WindowContainer_${id} .Header > .ButtonMinimize`).css('display', 'none')
+                $(`#WindowContainer_${id} .Header > .ButtonClose`).css('width', '31px')
+            }
+            if(args.windowConfig.frame == false) {
+                $(`#WindowContainer_${id}`).addClass('noframe')
+            }
+            if(args.windowConfig.top) {
+                $(`#WindowContainer_${id}`).css('--posY', args.windowConfig.top)
+            }
+            if(args.windowConfig.left) {
+                $(`#WindowContainer_${id}`).css('--posX', args.windowConfig.left)
+            }
+            if(args.windowConfig.zIndex) {
+                $(`#WindowContainer_${id}`).css('z-index', args.windowConfig.zIndex)
+                oknared.dwm.windows[id].zIndex = args.windowConfig.zIndex
+            }
+            if(args.windowConfig.animation) {
+                $(`#WindowContainer_${id} .Window`).css('--animation', args.windowConfig.animation)
+            }
+            try{
+            if(args.windowConfig.icon) {
+                let icon = args.windowConfig.icon
+                oknared.dwm.windows[id].icon = icon
+                $(`#WindowContainer_${id} .Window .Header img.icon`).attr('src', 'data:image/png;base64,' + oknared.getIcon(icon, '16x16'))
+            } else {
+                let icon = await oknared.getResFromFile('/Windows/system32/imageres.el', 'Icon/15')
+                oknared.dwm.windows[id].icon = icon
+                $(`#WindowContainer_${id} .Window .Header img.icon`).attr('src', 'data:image/png;base64,' + oknared.getIcon(icon, '16x16'))
+            }
+            }catch{}
+            if(args.windowConfig.killProcessOnClose) {
+                oknared.dwm.windows[id].killProcessOnClose = true
+            }
+            if(args.windowConfig.displayOnTaskbar == false) {
+                oknared.dwm.windows[id].displayOnTaskbar = false
+            }
+            if(args.windowConfig.hide) {
+                oknared.dwm.windows[id].hide = true
+            } else {
+                oknared.dwm.windows[id].hide = false
+            }
+        }
+
+        for(let i = 0; i < $('iframe').length; i++) {
+            let elem = $('iframe')[i].contentWindow;
+            // try{
+            elem.postMessage({
+                message: 'windowCreated',
+                window: JSON.stringify(oknared.dwm.windows[id]),
+                wid: id,
+                allwindows: JSON.stringify(oknared.dwm.windows),
+            });
+            // }catch(e){console.error(e)}
+        }
+        
+        try{
+        oknared.dwm.focus(id);
+        }catch{}
+
+        oknared.log('Created Window with ID ' + id + ' by Process with ID ' + args.pid);
+
+        let win = {
+            isClosed: false,
+            message: 'Success',
+            sendMessage(message, data){
+                for(let i = 0; i < $('#WindowContainer_' + id + ' iframe').length; i++) {
+                    $('#WindowContainer_' + id + ' iframe')[i].contentWindow.postMessage({
+                        message, ...data
+                    });
+                }
+            },
+            close(){
+                this.isClosed = true;
+                oknared.dwm.close(id);
+            },
+            focus: () => oknared.dwm.focus(id),
+            max: () => oknared.dwm.max(id),
+            min: () => oknared.dwm.min(id),
+            block: () => oknared.dwm.blockWindow(id),
+            unblock: () => oknared.dwm.unblockWindow(id),
+            waitForClose(timeout = 20){
+                return new Promise(res=>{
+                    const iid = setInterval(()=>{
+                        if(this.isClosed){
+                            res();
+                            clearInterval(iid);
+                        }
+                    }, timeout);
+                });
+            },
+            wid: id,
+        }
+
+        return win;
+    }
+    oknared.dwm.currentFocus = 0
+    oknared.dwm.focus = (wid) => {
+        $('.WindowContainer.focus').removeClass('focus');
+        $('#WindowContainer_' + wid).addClass('focus');
+        if(oknared.dwm.windows[wid].zIndex == null && oknared.dwm.currentFocus != wid) {
+            $('#WindowContainer_' + wid).css('z-index', oknared.dwm.maxzindex);
+            oknared.dwm.maxzindex++;
+        }
+        for(let i = 0; i < $('iframe').length; i++) {
+            let elem = $('iframe')[i];
+            elem.contentWindow.postMessage({
+                message: 'dwm_windowfocuschange',
+                window: JSON.stringify(oknared.dwm.windows[wid]),
+                wid: wid,
+                allwindows: JSON.stringify(oknared.dwm.windows),
+            });
+        }
+        oknared.dwm.currentFocus = wid;
+    }
+    oknared.dwm.updateIcon = (wid, icon) => {
+        oknared.dwm.windows[wid].icon = icon
+        $(`#WindowContainer_${wid} .Window .Header img.icon`).attr('src', 'data:image/png;base64,' + oknared.getIcon(icon, "16x16"))
+        for(let i = 0; i < $('iframe').length; i++) {
+            let elem = $('iframe')[i]
+            elem.contentWindow.postMessage({
+                message: 'dwm_iconchanged',
+                window: JSON.stringify(oknared.dwm.windows[wid]),
+                wid: wid,
+                allwindows: JSON.stringify(oknared.dwm.windows),
+            });
+        }
+    }
+    oknared.dwm.winmove = {
+        startX: 0,
+        startY: 0,
+        winStartX: 0,
+        winStartY: 0,
+        winSizeStartX: 0,
+        winSizeStartY: 0,
+        moveType: 0, // 0 - Move, 1 - Resize top, 2 - Resize right, 3 - Resize bottom, 4 - Resize left, 14 - Resize left top corner, 12 - Resize right top corner, 32 - Resize bottom right corner, 34 - Resize left bottom corner
+        moveWID: '',
+        down: (e) => {
+            if(e.target.parentElement.id.startsWith('Window_')) {
+                oknared.dwm.focus(Number(e.target.parentElement.id.replace('Window_', '')))
+                if(e.changedTouches) {
+                    e.x = e.changedTouches[0].pageX
+                    e.y = e.changedTouches[0].pageY
+                }
+                oknared.dwm.winmove.startX = e.x
+                oknared.dwm.winmove.startY = e.y
+                oknared.dwm.winmove.winStartX = e.target.parentElement.parentElement.offsetLeft
+                oknared.dwm.winmove.winStartY = e.target.parentElement.parentElement.offsetTop
+                oknared.dwm.winmove.winSizeStartX = e.target.parentElement.parentElement.offsetWidth
+                oknared.dwm.winmove.winSizeStartY = e.target.parentElement.parentElement.offsetHeight
+                oknared.dwm.winmove.moveWID = e.target.parentElement.parentElement.id.split('_')[1]
+                $('.iframeOverlay').css('display', 'block')
+                if(e.target.className == 'Header') {
+                    oknared.dwm.winmove.moveType = 0
+                    oknared.log('MouseDown event on Window with ID ' + oknared.dwm.winmove.moveWID + '. Moving start.')
+                } else if(e.target.className == 'Corner tl') {
+                    oknared.dwm.winmove.moveType = 14
+                    oknared.log('MouseDown event on Window with ID ' + oknared.dwm.winmove.moveWID + '. Resizing TopLeft corner start.')
+                } else if(e.target.className == 'Corner tr') {
+                    oknared.dwm.winmove.moveType = 12
+                    oknared.log('MouseDown event on Window with ID ' + oknared.dwm.winmove.moveWID + '. Resizing TopRight corner start.')
+                } else if(e.target.className == 'Corner br') {
+                    oknared.dwm.winmove.moveType = 32
+                    oknared.log('MouseDown event on Window with ID ' + oknared.dwm.winmove.moveWID + '. Resizing BottomRight corner start.')
+                } else if(e.target.className == 'Corner bl') {
+                    oknared.dwm.winmove.moveType = 34
+                    oknared.log('MouseDown event on Window with ID ' + oknared.dwm.winmove.moveWID + '. Resizing BottomLeft corner start.')
+                } else if(e.target.className == 'Edge t') {
+                    oknared.dwm.winmove.moveType = 1
+                    oknared.log('MouseDown event on Window with ID ' + oknared.dwm.winmove.moveWID + '. Resizing Top edge start.')
+                } else if(e.target.className == 'Edge r') {
+                    oknared.dwm.winmove.moveType = 2
+                    oknared.log('MouseDown event on Window with ID ' + oknared.dwm.winmove.moveWID + '. Resizing Right edge start.')
+                } else if(e.target.className == 'Edge b') {
+                    oknared.dwm.winmove.moveType = 3
+                    oknared.log('MouseDown event on Window with ID ' + oknared.dwm.winmove.moveWID + '. Resizing Bottom edge start.')
+                } else if(e.target.className == 'Edge l') {
+                    oknared.dwm.winmove.moveType = 4
+                    oknared.log('MouseDown event on Window with ID ' + oknared.dwm.winmove.moveWID + '. Resizing Left edge start.')
+                }
+
+                document.addEventListener('mousemove', oknared.dwm.winmove.move)
+                document.addEventListener('mouseup', oknared.dwm.winmove.up)
+                document.addEventListener('touchmove', oknared.dwm.winmove.move)
+                document.addEventListener('touchend', oknared.dwm.winmove.up)
+            }
+        },
+        move: (e) => {
+            if(e.changedTouches) {
+                e.x = e.changedTouches[0].pageX
+                e.y = e.changedTouches[0].pageY
+            }
+            if(oknared.dwm.winmove.moveType == 0) {
+                let newX = oknared.dwm.winmove.winStartX - (oknared.dwm.winmove.startX - e.x)
+                let newY = oknared.dwm.winmove.winStartY - (oknared.dwm.winmove.startY - e.y)
+                $('#WindowContainer_' + oknared.dwm.winmove.moveWID).css('--posX', newX + 'px')
+                $('#WindowContainer_' + oknared.dwm.winmove.moveWID).css('--posY', newY + 'px')
+            } else if(oknared.dwm.winmove.moveType == 14) {
+                let newX = oknared.dwm.winmove.winStartX - (oknared.dwm.winmove.startX - e.x)
+                let newY = oknared.dwm.winmove.winStartY - (oknared.dwm.winmove.startY - e.y)
+                let newSizeX = oknared.dwm.winmove.winSizeStartX + (oknared.dwm.winmove.startX - e.x)
+                let newSizeY = oknared.dwm.winmove.winSizeStartY + (oknared.dwm.winmove.startY - e.y)
+                $('#WindowContainer_' + oknared.dwm.winmove.moveWID).css('--posX', newX + 'px')
+                $('#WindowContainer_' + oknared.dwm.winmove.moveWID).css('--posY', newY + 'px')
+                $('#WindowContainer_' + oknared.dwm.winmove.moveWID).css('--width', newSizeX + 'px')
+                $('#WindowContainer_' + oknared.dwm.winmove.moveWID).css('--height', newSizeY + 'px')
+            } else if(oknared.dwm.winmove.moveType == 32) {
+                let newSizeX = oknared.dwm.winmove.winSizeStartX - (oknared.dwm.winmove.startX - e.x)
+                let newSizeY = oknared.dwm.winmove.winSizeStartY - (oknared.dwm.winmove.startY - e.y)
+                $('#WindowContainer_' + oknared.dwm.winmove.moveWID).css('--width', newSizeX + 'px')
+                $('#WindowContainer_' + oknared.dwm.winmove.moveWID).css('--height', newSizeY + 'px')
+            } else if(oknared.dwm.winmove.moveType == 34) {
+                let newX = oknared.dwm.winmove.winStartX - (oknared.dwm.winmove.startX - e.x)
+                let newSizeX = oknared.dwm.winmove.winSizeStartX + (oknared.dwm.winmove.startX - e.x)
+                let newSizeY = oknared.dwm.winmove.winSizeStartY - (oknared.dwm.winmove.startY - e.y)
+                $('#WindowContainer_' + oknared.dwm.winmove.moveWID).css('--posX', newX + 'px')
+                $('#WindowContainer_' + oknared.dwm.winmove.moveWID).css('--width', newSizeX + 'px')
+                $('#WindowContainer_' + oknared.dwm.winmove.moveWID).css('--height', newSizeY + 'px')
+            } else if(oknared.dwm.winmove.moveType == 12) {
+                let newY = oknared.dwm.winmove.winStartY - (oknared.dwm.winmove.startY - e.y)
+                let newSizeX = oknared.dwm.winmove.winSizeStartX - (oknared.dwm.winmove.startX - e.x)
+                let newSizeY = oknared.dwm.winmove.winSizeStartY + (oknared.dwm.winmove.startY - e.y)
+                $('#WindowContainer_' + oknared.dwm.winmove.moveWID).css('--posY', newY + 'px')
+                $('#WindowContainer_' + oknared.dwm.winmove.moveWID).css('--width', newSizeX + 'px')
+                $('#WindowContainer_' + oknared.dwm.winmove.moveWID).css('--height', newSizeY + 'px')
+            } else if(oknared.dwm.winmove.moveType == 1) {
+                let newY = oknared.dwm.winmove.winStartY - (oknared.dwm.winmove.startY - e.y)
+                let newSizeY = oknared.dwm.winmove.winSizeStartY + (oknared.dwm.winmove.startY - e.y)
+                $('#WindowContainer_' + oknared.dwm.winmove.moveWID).css('--posY', newY + 'px')
+                $('#WindowContainer_' + oknared.dwm.winmove.moveWID).css('--height', newSizeY + 'px')
+            } else if(oknared.dwm.winmove.moveType == 3) {
+                let newSizeY = oknared.dwm.winmove.winSizeStartY - (oknared.dwm.winmove.startY - e.y)
+                $('#WindowContainer_' + oknared.dwm.winmove.moveWID).css('--height', newSizeY + 'px')
+            } else if(oknared.dwm.winmove.moveType == 4) {
+                let newX = oknared.dwm.winmove.winStartX - (oknared.dwm.winmove.startX - e.x)
+                let newSizeX = oknared.dwm.winmove.winSizeStartX + (oknared.dwm.winmove.startX - e.x)
+                $('#WindowContainer_' + oknared.dwm.winmove.moveWID).css('--width', newSizeX + 'px')
+                $('#WindowContainer_' + oknared.dwm.winmove.moveWID).css('--posX', newX + 'px')
+            } else if(oknared.dwm.winmove.moveType == 2) {
+                let newSizeX = oknared.dwm.winmove.winSizeStartX - (oknared.dwm.winmove.startX - e.x)
+                $('#WindowContainer_' + oknared.dwm.winmove.moveWID).css('--width', newSizeX + 'px')
+            }
+        },
+        up: (e) => {
+            oknared.log('MouseUp event. Stopping moving.')
+            document.removeEventListener('mousemove', oknared.dwm.winmove.move)
+            document.removeEventListener('mouseup', oknared.dwm.winmove.up)
+            document.removeEventListener('touchmove', oknared.dwm.winmove.move)
+            document.removeEventListener('touchend', oknared.dwm.winmove.up)
+            $('.iframeOverlay').css('display', 'none')
+        },
+    }
+    oknared.dwm.close = async (wid) => {
+        $('#WindowContainer_' + wid).css('animation', 'windowHideAnim 0.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards');
+        setTimeout(() => {
+            $('#WindowContainer_' + wid).remove();
+        }, 500);
+        oknared.log('Closed Window with ID ' + wid);
+        let win = oknared.dwm.windows[wid];
+        delete oknared.dwm.windows[wid];
+        for(let i = 0; i < $('iframe').length; i++) {
+            let elem = $('iframe')[i]
+            elem.contentWindow.postMessage({
+                message: 'dwm_windowclosed',
+                window: JSON.stringify(oknared.dwm.windows[wid]),
+                wid: wid,
+                allwindows: JSON.stringify(oknared.dwm.windows),
+            });
+        }
+        if(win.killProcessOnClose) {
+            oknared.task.kill(win.pid);
+        }
+        if(win.onclose) {
+            win.onclose();
+        }
+    }
+    oknared.dwm.max = async (wid) => {
+        $('#WindowContainer_' + wid).addClass('Maximized')
+        oknared.log('Maximized Window with ID ' + wid)
+    }
+    oknared.dwm.res = async (wid) => {
+        $('#WindowContainer_' + wid).removeClass('Maximized')
+        oknared.log('Restored Window with ID ' + wid)
+    }
+    oknared.dwm.min = () => {};
+    oknared.dwm.blockWindow = (wid) => {
+        $('#WindowContainer_' + wid).addClass('blocked')
+    }
+    oknared.dwm.unblockWindow = (wid) => {
+        $('#WindowContainer_' + wid).removeClass('blocked')
+    }
+    document.addEventListener('mousedown', oknared.dwm.winmove.down);
+    document.addEventListener('touchstart', oknared.dwm.winmove.down);
+
+    //**********************************************************************************
+
+    //**************************** INI FILE PARSE **************************************
+    window.parseIni = (ini) => {
+        ini = ini.replaceAll('\r\n', '\n')
+        let iniArr = ini.split('\n')
+        let currentDir = ''
+        let result = {}
+        for(let i = 0; i < iniArr.length; i++) {
+            if(!iniArr[i] == '') {
+                if(iniArr[i].startsWith('[')) {
+                    currentDir = iniArr[i].replace('[', '').replace(']', '')
+                } else if(iniArr[i].split('=') != -1) {
+                    if(result[currentDir] == null) {
+                        result[currentDir] = {}
+                    }
+                    let q = iniArr[i].split('=')
+                    result[currentDir][q[0]] = q[1]
+                }
+            }
+        }
+
+        return result
+    }
+    //**********************************************************************************
+
+    oknared.dwm.res.stream1060 = await oknared.getRes('/Windows/Resources/Themes/aero/aero.el', 'STREAM/1060')
+
+    $('body').append(`
+        <style>
+            .WindowContainer > .Window > .Header > div > .image {
+                background-image: url("data:image/png;base64,${oknared.dwm.res.stream1060}")
+            }
+        </style>
+    `)
+
+    oknared.hideBootscreen = () => {
+        $('#bootscreen').css('animation', 'bootscreenHideAnim 0.2s linear forwards')
+    }
+
+    setTimeout(loadEnv, 500);
+
+    ntoskrnlInit = null;
+}
+
+let systemUserInfo = {
+    sid: 'S-1-5-18',
+    rid: 0,
+    name: 'SYSTEM',
+}
+
+oknared.crash = () => {
+    $('html').html(`<div style="background:black;width:100%;height:100%;position:fixed;left:0;top:0;margin:0"></div>`);
+    setTimeout(()=>{
+        $('html').html(`
+            <div style="user-select:none;color:white;font-family:Segoe UI;background: #106FAA;width: 100%;height:100%;position:fixed;font-size:72px;padding:150px;left: 0; top: 0;">
+                <span style="font-size:128px;">:(</span><br/>
+                <span style="font-size:32px;margin-bottom:5px;display:inline-block;height:30px;margin-top:40px">Your PC ran into a problem and needs to restart. We're just<br/>collecting some error info, and then we'll restart for you. (0% complete)</span><br/>
+                <span style="font-size:18px;">If you'd like to know more, you can search online later for this error: ХУЙ_ТЕБЕ</span>
+            </div>
+        `);
+    }, 500);
+}
+
+oknared.errors = {};
+oknared.errorF = async (e) => {
+    if(oknared.errors[(e.stack??e)] > 10){
+        oknared.crash(e.stack??e);
+    }
+    oknared.errors[(e.stack??e)]++;
+    await oknared.cmdexec('root/Windows/system32/mmsgbox.ore Ошибка'+(e.stack??e));
+}
+window.onerror = oknared.errorF;
+
+async function loadEnv() {
+    try{
+        currentLanguage = oknared.reg.readKey('HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Control/Nls/Locale/@').data;
+    }catch(e){
+        oknared.crash(e);
+    }
+    if((await oknared.reg.readKey('HKEY_LOCAL_MACHINE/SYSTEM/Setup/Status/ChildCompletion/oobeldr.ore')).data == 1) {
+        oknared.task.create('/Windows/system32/oobe/oobeldr.ore', {
+            user: systemUserInfo,
+        });
+    } else {
+        oknared.task.create('/Windows/system32/winlogon.ore', {
+            user: systemUserInfo,
+        });
+    }
+}
+
+try{
+    ntoskrnlInit();
+}catch(e){
+    oknared.crash(e);
+}

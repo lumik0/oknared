@@ -1,0 +1,66 @@
+{
+    "data": {},
+    "children": {
+        "CurrentControlSet": {
+            "data": {},
+            "children": {
+                "Hardware Profiles": {
+                    "data": {},
+                    "children": {
+                        "Current": {
+                            "data": {},
+                            "children": {
+                                "Software": {
+                                    "data": {},
+                                    "children": {}
+                                },
+                                "System": {
+                                    "data": {},
+                                    "children": {}
+                                }
+                            }
+                        }
+                    }
+                },
+                "Control": {
+                    "data": {},
+                    "children": {
+                        "Nls": {
+                            "data": {},
+                            "children": {
+                                "Locale": {
+                                    "data": {
+                                        "@": {
+                                            "type": "REG_SZ",
+                                            "data": "ru-ru"
+                                        }
+                                    },
+                                    "children": {}
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "Setup": {
+            "data": {},
+            "children": {
+                "Status": {
+                    "data": {},
+                    "children": {
+                        "ChildCompletion": {
+                            "data": {
+                                "oobeldr.ore": {
+                                    "type": "REG_DWORD",
+                                    "data": 1
+                                }
+                            },
+                            "children": {}
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

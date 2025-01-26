@@ -1,0 +1,62 @@
+// Основной загрузочный файл ОС OknaRed
+
+window.oknared = {};
+
+console.log('OknaRed');
+
+// Подготовительные этапы загрузки
+
+document.body.style.height = '100%';
+document.body.style.width = '100%';
+document.body.style.position = 'fixed';
+document.body.style.left = '0';
+document.body.style.top = '0';
+document.body.style.backgroundColor = 'black';
+
+// Подготовка основных объектов и функций
+
+oknared.getRes = async (filepath, respath) => {
+    let file = JSON.parse(await fs.readFile(filepath));
+    return file.res[respath.split('/')[0]][respath.split('/')[1]];
+}
+
+/*window.RealConsoleLog = console.log
+console.log = (text) => {
+    RealConsoleLog(text)
+}
+*/
+oknared.loadScript = (path) =>
+    new Promise(async(resolve, reject) => {
+        let file = await fs.readFileBin(path);
+        let elem = document.createElement('script');
+        elem.src = file;
+        elem.onload = resolve;
+        document.head.appendChild(elem);
+    });
+
+oknared.runScript = (path) =>
+    new Promise(async(resolve, reject) => {
+        let file = await fs.readFile(path);
+        await eval(file);
+        resolve();
+    });
+
+oknared.loadStyles = (path) =>
+    new Promise(async (resolve, reject) => {
+        let file = await fs.readFileBin(path);
+        let elem = document.createElement('link');
+        elem.rel = "stylesheet";
+        elem.href = file;
+        elem.onload = resolve;
+        document.head.appendChild(elem);
+    });
+
+oknared.utf8_to_b64 = ( str ) => {
+    return btoa(unescape(encodeURIComponent( str )));
+}
+
+oknared.b64_to_utf8 = ( str ) => {
+    return decodeURIComponent(escape(window.atob( str )));
+}
+
+oknared.loadScript('/Windows/system32/Boot/winload.ore');

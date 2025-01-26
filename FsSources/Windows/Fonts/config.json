@@ -1,0 +1,16 @@
+{
+    "fonts": [
+        {
+            "fontFamily": "Tahoma",
+            "path": "/Windows/Fonts/tahoma.ttf"
+        },
+        {
+            "fontFamily": "Lucida Console",
+            "path": "/Windows/Fonts/lucon.ttf"
+        },
+        {
+            "fontFamily": "Segoe UI Symbol",
+            "path": "/Windows/Fonts/seguisym.ttf"
+        }
+    ]
+}

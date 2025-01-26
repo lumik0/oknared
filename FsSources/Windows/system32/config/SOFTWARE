@@ -1,0 +1,228 @@
+{
+    "data": {},
+    "children": {
+        "Classes": {
+            "data": {},
+            "children": {
+                "CLSID": {
+                    "data": {},
+                    "children": {
+                        "{20D04FE0-3AEA-1069-A2D8-08002B30309D}": {
+                            "data": {
+                                "@": {
+                                    "type": "REG_SZ",
+                                    "data": "This PC"
+                                },
+                                "InfoTip": {
+                                    "type": "REG_SZ",
+                                    "data": "@%SystemRoot%\\system32\\shell32.el,-22913"
+                                },
+                                "LocalizedString": {
+                                    "type": "REG_SZ",
+                                    "data": "@%SystemRoot%\\system32\\shell32.el,-9216"
+                                },
+                                "System.Keywords": {
+                                    "type": "REG_SZ",
+                                    "data": "@%windir%\\system32\\shell32.el,-9012"
+                                },
+                                "System.PropList.DetailsPaneNullSelect": {
+                                    "type": "REG_SZ",
+                                    "data": "prop:*System.Computer.DomainName;*System.Computer.Workgroup;*System.Computer.Processor;System.Computer.Memory"
+                                },
+                                "System.PropList.DetailsPaneNullSelectTitle": {
+                                    "type": "REG_SZ",
+                                    "data": "prop:System.Computer.SimpleName;*System.Computer.Description"
+                                }
+                            },
+                            "children": {
+                                "DefaultIcon": {
+                                    "data": {
+                                        "@": {
+                                            "type": "REG_SZ",
+                                            "data": "%SystemRoot%\\system32\\imageres.el,-109"
+                                        }
+                                    },
+                                    "children": {}
+                                },
+                                "InProcServer32": {
+                                    "data": {},
+                                    "children": {}
+                                },
+                                "shell": {
+                                    "data": {},
+                                    "children": {
+                                        "find": {
+                                            "data": {},
+                                            "children": {
+                                                "command": {
+                                                    "data": {},
+                                                    "children": {}
+                                                }
+                                            }
+                                        },
+                                        "Manage": {
+                                            "data": {},
+                                            "children": {
+                                                "command": {
+                                                    "data": {
+                                                        "@": {
+                                                            "type": "REG_SZ",
+                                                            "data": "%SystemRoot%\\system32\\CompMgmtLauncher.ore"
+                                                        }
+                                                    },
+                                                    "children": {}
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "{645FF040-5081-101B-9F08-00AA002F954E}": {
+                            "data": {
+                                "@": {
+                                    "type": "REG_SZ",
+                                    "data": "Recycle Bin"
+                                },
+                                "InfoTip": {
+                                    "type": "REG_SZ",
+                                    "data": "@%SystemRoot%\\system32\\shell32.el,-22915"
+                                },
+                                "LocalizedString": {
+                                    "type": "REG_SZ",
+                                    "data": "@%SystemRoot%\\system32\\shell32.el,-8964"
+                                },
+                                "AppID": {
+                                    "type": "REG_SZ",
+                                    "data": "{E10F6C3A-F1AE-4ADC-AA9D-2FE65525666E}"
+                                },
+                                "SortOrderIndex": {
+                                    "type": "REG_DWORD",
+                                    "data": "0x00000078"
+                                }
+                            },
+                            "children": {
+                                "DefaultIcon": {
+                                    "data": {
+                                        "@": {
+                                            "type": "REG_SZ",
+                                            "data": "%SystemRoot%\\system32\\imageres.el,-55"
+                                        },
+                                        "Empty": {
+                                            "type": "REG_SZ",
+                                            "data": "%SystemRoot%\\system32\\imageres.el,-55"
+                                        },
+                                        "Full": {
+                                            "type": "REG_SZ",
+                                            "data": "%SystemRoot%\\system32\\imageres.el,-54"
+                                        }
+                                    },
+                                    "children": {}
+                                },
+                                "InProcServer32": {
+                                    "data": {},
+                                    "children": {}
+                                },
+                                "shell": {
+                                    "data": {},
+                                    "children": {
+                                        "empty": {
+                                            "data": {
+                                                "CommandStateHandler": "{c9298eef-69dd-4cdd-b153-bdbc38486781}",
+                                                "Description": "@shell32.el,-31332",
+                                                "Icon": "shell32.el,-254",
+                                                "MUIVerb": "@shell32.el,-10564"
+                                            },
+                                            "children": {
+                                                "command": {
+                                                    "data": {
+                                                        "DelegateExecute": {
+                                                            "type": "REG_SZ",
+                                                            "data": "{48527bb3-e8de-450b-8910-8c4099cb8624}"
+                                                        }
+                                                    },
+                                                    "children": {}
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                ".txt": {
+                    "data": {
+                        "FriendlyTypeName": {
+                            "type": "REG_SZ",
+                            "data": "@%SystemRoot%\\system32\\notepad.exe,-469"
+                        }
+                    },
+                    "children": {
+                        "DefaultIcon": {
+                            "data": {
+                                "@": {
+                                    "type": "REG_SZ",
+                                    "data": "%SystemRoot%\\system32\\imageres.el,-102"
+                                }
+                            },
+                            "children": {}
+                        },
+                        "shell": {
+                            "data": {},
+                            "children": {
+                                "open": {
+                                    "data": {},
+                                    "children": {
+                                        "command": {
+                                            "data": {
+                                                "@": {
+                                                    "type": "REG_SZ",
+                                                    "data": "%SystemRoot%\\system32\\notepad.ore %1"
+                                                }
+                                            },
+                                            "children": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "Microsoft": {
+            "data": {},
+            "children": {
+                "Windows NT": {
+                    "data": {},
+                    "children": {
+                        "CurrentVersion": {
+                            "data": {},
+                            "children": {
+                                "ProfileList": {
+                                    "data": {},
+                                    "children": {
+                                        "S-1-5-18": {
+                                            "data": {
+                                                "@": {
+                                                    "type": "REG_SZ",
+                                                    "data": null
+                                                },
+                                                "ProfileImagePath": {
+                                                    "type": "REG_EXPAND_SZ",
+                                                    "data": "/Windows/system32/config/systemprofile"
+                                                }
+                                            },
+                                            "children": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
