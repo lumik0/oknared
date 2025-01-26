@@ -1,0 +1,11 @@
+{
+    "type": "ore",
+    "desc": "Notepad",
+    "fileVer": "1.1.112.2",
+    "productVer": "1.1.112.2",
+    "productName": "OknaRed WebOS",
+    "copyright": "",
+    "filename": "notepad",
+    "language": "ru-ru",
+    "icon": "$RES/Icon/2"
+}

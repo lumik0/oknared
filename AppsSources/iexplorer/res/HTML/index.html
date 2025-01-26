@@ -1,0 +1,92 @@
+
+<script>
+    let dllPath = "/Windows/system32/explorerframe.el";
+    async function loadScriptFromRes(path) {
+        let script = document.createElement('script');
+        script.src = 'data:text/plain;base64,' + (await getResFromFile(dllPath, path));
+        document.body.appendChild(script);
+    }
+    async function loadStylesFromRes(path) {
+        let link = document.createElement('link');
+        link.href = 'data:text/css;base64,' + (await getResFromFile(dllPath, path));
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+    }
+    function addScript(path) {
+        let script = document.createElement('script');
+        script.src = "data:text/plain;base64," + getRes(path);
+        document.body.appendChild(script);
+    }
+    function addCSS(path) {
+        let link = document.createElement('link');
+        link.href = 'data:text/css;base64,' + getRes(path);
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+    }
+    
+    addCSS('CSS/style');
+    loadStylesFromRes('CSS/1');
+</script>
+
+<div class="ieheader">
+    <div class="travelButtons">
+        <div class="back"></div>
+        <div class="next"></div>
+    </div>
+</div>
+<div class="tabs">
+    <div class="tabContainer">
+    </div>
+    <div class="newtab" onclick="NewTab()"><div><img src="" alt=""></div></div>
+</div>
+<div class="frames">
+</div>
+
+
+<script>
+    let frames = [];
+
+    function ActivateTab(FrameID) {
+        $('.tabs .tab').removeClass('active');
+        $('#Tab_' + FrameID)[0].className = "tab active";
+        $('.frames .frame').css('display', 'none');
+        $('#Frame_' + FrameID).css('display', 'block');
+    }
+    function CloseTab(id) {
+        $('.tabs .tab').removeClass('active');
+        $('.frames .frame').css('display', 'none');
+        $('#Frame_' + id).remove();
+        $('#Tab_' + id).remove();
+
+        $('#Frame_0').css('display', 'block');
+        $('#Tab_0')[0].className = "tab active";
+    }
+
+    function NewTab() {
+        let frameid = frames.length;
+        frames.push({title: 'Google'});
+        $('.tabs .tab').removeClass('active');
+        $('.frames .frame').css('display', 'none');
+        $('.tabContainer').append(`
+            <div class="tab active" onclick="ActivateTab('${frameid}')" id="Tab_${frameid}">
+                <div>
+                    <span id="TabTitle_${frameid}">Document</span>
+                    <button style="
+                        float: right;
+                        min-width: 20px;
+                        background: none;
+                        border: none;
+                        color: gray;
+                    " onclick="CloseTab(${frameid})">X</button>
+                </div>
+            </div>
+        `);
+        $('.frames').append(`
+            <div class="frame" style="display:block" id="Frame_${frameid}">
+                <iframe src="https://google.com/" frameborder="0"></iframe>
+            </div>
+        `);
+    }
+
+    NewTab();
+</script>

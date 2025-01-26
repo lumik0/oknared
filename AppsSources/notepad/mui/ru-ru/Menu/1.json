@@ -1,0 +1,39 @@
+[
+    {
+        "type": "menu",
+        "text": "Файл",
+        "content": [
+            {
+                "type": "item",
+                "text": "Создать\tCTRL+N",
+                "result": "1"
+            },
+            {
+                "type": "item",
+                "text": "Открыть...\tCTRL+O",
+                "result": "2"
+            },
+            {
+                "type": "item",
+                "text": "Сохранить\tCTRL+S",
+                "result": "3"
+            },
+            {
+                "type": "item",
+                "text": "Сохранить как...",
+                "result": "4"
+            }
+        ]
+    },
+    {
+        "type": "menu",
+        "text": "Правка",
+        "content": [
+            {
+                "type": "item",
+                "text": "Отменить\tCTRL+Z",
+                "result": "16"
+            }
+        ]
+    }
+]

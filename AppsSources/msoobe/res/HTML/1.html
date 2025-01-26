@@ -1,0 +1,496 @@
+<body>
+    <style>
+        body {
+            --color-back: rgb(24, 0, 82);
+            --color-buttonhover: rgb(90, 43, 202);
+            --color-buttonfocus: rgb(70, 23, 181);
+            background-color: rgb(0, 0, 0);
+            font-family: 'Segoe UI';
+            display: flex;
+            justify-content: center;
+            transition: background-color 166ms cubic-bezier(0.1, 0.9, 0.2, 1);
+            user-select: none;
+            height: 100vh;
+            margin: 0;
+            
+        }
+
+        body.easteregg {
+            background: linear-gradient(0deg,rgba(0,0,0,1) 0%,
+                rgba(0,0,0,1) 8.5%, rgba(255,0,0,1) 8.5%,
+                rgba(255,0,0,1) 16%, rgba(0,0,0,1) 16%,
+                rgba(0,0,0,1) 23.5%, rgba(255,0,0,1) 23.5%,
+                rgba(255,0,0,1) 31%, rgba(0,0,0,1) 31%,
+                rgba(0,0,0,1) 38.5%, rgba(255,0,0,1) 38.5%,
+                rgba(255,0,0,1) 46%, rgba(0,0,0,1) 46%,
+                rgba(0,0,0,1) 53.5%, rgba(255,0,0,1) 53.5%,
+                rgba(255,0,0,1) 61%, rgba(0,0,0,1) 61%,
+                rgba(0,0,0,1) 68.5%, rgba(255,0,0,1) 68.5%,
+                rgba(255,0,0,1) 76%, rgba(0,0,0,1) 76%,
+                rgba(0,0,0,1) 83.5%, rgba(255,0,0,1) 83.5%,
+                rgba(255,0,0,1) 91%, rgba(0,0,0,1) 91%,
+                rgba(0,0,0,1) 100%) !important;
+        }
+
+        section.page {
+            width: 935px;
+            height: calc(100vh - 124px);
+            box-sizing: border-box;
+            color: white;
+            position: fixed;
+            top: 0;
+            padding-left: 76px;
+            padding-right: 86px;
+            display: none;
+            overflow-y: auto;
+        }
+
+        section.page > .buttons {
+            width: 780px;
+            height: 124px;
+            position: fixed;
+            bottom: 0;
+            left: calc(50% - 390px);
+        }
+
+        button {
+            --color: white;
+            color: var(--color);
+            border: var(--color) 2px solid;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Segoe UI';
+            background: none;
+            padding: 3px 12px 4px 12px;
+            letter-spacing: -0.49px;
+            min-width: 90px;
+        }
+
+        section.page > .buttons > button {
+            float: right;
+            margin: 37px 10px;
+        }
+
+        button:not(:disabled):hover {
+            background-color: var(--color-buttonhover);
+        }
+
+        button:not(:disabled):active {
+            background-color: var(--color);
+            color: black;
+        }
+
+        button:focus {
+            outline: none;
+            /*background-color: var(--color-buttonfocus);*/
+        }
+
+        button:disabled {
+            --color: rgb(102, 102, 102);
+        }
+
+        section.page h1 {
+            font-size: 56px;
+            font-weight: 100;
+            margin: 37px 0;
+            animation: pageShowAnim 220ms cubic-bezier(0.1, 0.9, 0.2, 1) forwards, fadeShowAnim 167ms cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+        }
+
+        section.page h2 {
+            font-size: 28px;
+            font-weight: 100;
+            margin: 37px 0;
+        }
+
+        p {
+            font-size: 16px;
+            letter-spacing: -0.49px;
+            line-height: 20px;
+        }
+
+        section.page > *:not(h1) {
+            opacity: 0;
+            animation: pageShowAnim 220ms 100ms cubic-bezier(0.1, 0.9, 0.2, 1) forwards, fadeShowAnim 167ms 100ms cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+        }
+
+
+        @keyframes pageShowAnim {
+            0% {
+                transform: translateX(11px);
+            }
+            100% {
+                transform: translate(0);
+            }
+        }
+
+        @keyframes fadeShowAnim {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeHideAnim {
+            0% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        input {
+            border: transparent solid 2px;
+            background-color: rgba(255,255,255,0.8);
+            border-radius: 0;
+            margin: 8px 0px;
+            width: 296px;
+            min-width: 64px;
+            min-height: 28px;
+            background-clip: border-box;
+            box-sizing: border-box;
+            padding: 4px 8px 4px 8px;
+            outline: 0;
+            font-size: 15px;
+            font-weight: 400;
+            line-height: 1.333;
+            font-family: 'Segoe UI';
+        }
+
+        input:disabled {
+            border: rgba(255, 255, 255, 0.5) solid 2px;
+            color: rgba(255, 255, 255, 0.5);
+            background: none;
+            opacity: 0.5;
+        }
+
+        input:focus {
+            background-color: white;
+        }
+    </style>
+
+    <section class="page" id="page1">
+        <h1 class="Str_1146"></h1>
+        <p class="Str_540"></p>
+        <p class="Str_562"></p>
+        <p class="Str_1153" style="margin-top: 40px"></p>
+        <input type="text" autocomplete="off" style="width: 420px" />
+        <div class="buttons">
+            <button class="Str_504" onclick="startCommonSetup()"></button>
+            <button class="Str_505" disabled></button>
+        </div>
+    </section>
+
+    <section class="page" id="page4">
+        <style>
+
+            @keyframes page4hHideAnim {
+                0% {
+                    transform: 0;
+                }
+                100% {
+                    transform: translateX(-50px);
+                }
+            }
+
+            #page4 h2 {
+                display: inline-block;
+                animation:
+                    pageShowAnim 220ms cubic-bezier(0.1, 0.9, 0.2, 1) forwards, 
+                    fadeShowAnim 267ms cubic-bezier(0.1, 0.9, 0.2, 1) forwards,
+                    page4hHideAnim 220ms 4s cubic-bezier(0.1, 0.9, 0.2, 1) forwards,
+                    fadeHideAnim 167ms 4s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+                margin: 0 20px 0 0;
+                opacity: 0;
+            }
+
+            #page4_h2_1 { animation-delay: 266ms, 266ms, 2s, 2s !important; }
+            #page4_h2_2 { animation-delay: 346ms, 346ms, 2s, 2s !important; }
+            #page4_h2_3 { animation-delay: 426ms, 426ms, 2s, 2s !important; }
+            #page4_h2_4 { animation-delay: 506ms, 506ms, 2s, 2s !important; }
+
+            #page4 p {
+                margin-top: 50%;
+                transform: translateY(-70px);
+                animation:
+                    pageShowAnim 220ms 166ms cubic-bezier(0.1, 0.9, 0.2, 1) forwards,
+                    fadeShowAnim 167ms 166ms cubic-bezier(0.1, 0.9, 0.2, 1) forwards,
+                    page4hHideAnim 220ms 2s cubic-bezier(0.1, 0.9, 0.2, 1) forwards,
+                    fadeHideAnim 167ms 2s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+                opacity: 0;
+            }
+        </style>
+        <p class="Str_588"></p>
+        <h2 class="Str_480" id="page4_h2_1"></h2>
+        <h2 class="Str_481" id="page4_h2_2"></h2>
+        <h2 class="Str_482" id="page4_h2_3"></h2>
+        <h2 class="Str_485" id="page4_h2_4"></h2>
+    </section>
+
+    <section class="page" id="page5">
+        <h1 class="Str_480"></h1>
+        <p class="Str_680"></p>
+        <div id="page5_colorSelector" class="colorSelector">
+            <div></div>
+        </div>
+        <p class="Str_513" style="display: none; color: rgb(255, 255, 0); animation: fadeShowAnim 500ms cubic-bezier(0.1, 0.9, 0.2, 1) forwards;"></p>
+        <p class="Str_686" style="display: none; color: rgb(255, 255, 0); animation: fadeShowAnim 500ms cubic-bezier(0.1, 0.9, 0.2, 1) forwards;"></p>
+        <p class="Str_687" style="display: none; color: rgb(255, 255, 0);"></p>
+        <p class="Str_1122" style="margin-bottom: -1px"></p>
+        <input type="text" autocomplete="off" id="input_page5_pcname" placeholder="Str_522">
+
+        <div class="buttons">
+            <button class="Str_505" onclick="checkPcName()"></button>
+        </div>
+
+        <style>
+            #page5 > .colorSelector {
+                width: 752px;
+                height: 76px;
+                margin-top: -2px;
+                margin-bottom: -3px;
+                position: relative;
+            }
+            
+            #page5 > .colorSelector > div {
+                width: 30px;
+                height: 76px;
+                position: absolute;
+                pointer-events: none;
+            }
+        </style>
+    </section>
+
+    <section class="page" id="page6">
+        <h1 class="Str_482"></h1>
+        <h2 class="Str_615"></h2>
+        <p class="Str_614"></p>
+        <ul>
+            <li class="Str_621"></li>
+            <li class="Str_616"></li>
+            <li class="Str_811"></li>
+            <li class="Str_617"></li>
+            <li class="Str_618"></li>
+            <li class="Str_612"></li>
+            <li class="Str_619"></li>
+            <li class="Str_620"></li>
+        </ul>
+        <div class="buttons">
+            <button class="Str_611" onclick=""></button>
+            <button class="Str_610" onclick="setupUserAccount();useStandartSettings()"></button>
+        </div>
+        <style>
+            #page6 h2 {
+                margin-top: -7px;
+                margin-bottom: -6px;
+            }
+
+            #page6 ul {
+                padding-left: 18px;
+                margin-top: 19px;
+            }
+            #page6 ul li {
+                padding-left: 4px;
+                margin-top: 4px;
+                letter-spacing: -0.49px;
+                line-height: 20px;
+            }
+        </style>
+    </section>
+
+    <section class="page" id="page7">
+        <div>
+            <span>
+                <div class="progress-ring">
+                    <div class="progress-ring__wrap">
+                        <div class="progress-ring__circle">
+                        </div>
+                    </div>
+                    <div class="progress-ring__wrap">
+                        <div class="progress-ring__circle">
+                        </div>
+                    </div>
+                    <div class="progress-ring__wrap">
+                        <div class="progress-ring__circle">
+                        </div>
+                    </div>
+                    <div class="progress-ring__wrap">
+                        <div class="progress-ring__circle">
+                        </div>
+                    </div>
+                    <div class="progress-ring__wrap">
+                        <div class="progress-ring__circle">
+                        </div>
+                    </div>
+                </div>
+                <h2 class="Str_665"></h2>
+            </span>
+        </div>
+        <style>
+            #page7 > div {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            #page7 span {   
+                margin-top: 124px;
+            }
+
+            #page7 span h2 {
+                display: inline;
+                vertical-align: 10px;
+            }
+            
+            #page7 span > div {
+                display: inline-block;
+                margin-right: 6px;
+                scale: 0.65;
+            }
+        </style>
+    </section>
+
+    <section class="page" id="page8">
+        <h1 class="Str_483"></h1>
+
+
+        <p class="Str_713 p1" style="display:none"></p>
+        <p class="Str_712 p1" style="display:none"></p>
+        <div class="buttons p1">
+            <button class="Str_766" onclick="useLocalAccount()"></button>
+            <button class="Str_765" onclick="setupUserAccount()"></button>
+        </div>
+
+
+        <p class="Str_710 p2"></p>
+        <p class="Str_715 errormessage" style="display: none; color: rgb(255, 255, 0); animation: fadeShowAnim 500ms cubic-bezier(0.1, 0.9, 0.2, 1) forwards;"></p>
+        <p class="Str_523 errormessage" style="display: none; color: rgb(255, 255, 0); animation: fadeShowAnim 500ms cubic-bezier(0.1, 0.9, 0.2, 1) forwards;"></p>
+        <p class="Str_511 errormessage" style="display: none; color: rgb(255, 255, 0); animation: fadeShowAnim 500ms cubic-bezier(0.1, 0.9, 0.2, 1) forwards;"></p>
+        <p class="Str_531 errormessage" style="display: none; color: rgb(255, 255, 0); animation: fadeShowAnim 500ms cubic-bezier(0.1, 0.9, 0.2, 1) forwards;"></p>
+        <p class="Str_716 errormessage" style="display: none; color: rgb(255, 255, 0); animation: fadeShowAnim 500ms cubic-bezier(0.1, 0.9, 0.2, 1) forwards;"></p>
+        <table class="p2">
+            <tr>
+                <td>Имя пользователя</td>
+                <td><input autocomplete="off" id="input_page8_username" type="text" placeholder="Str_714"></td>
+            </tr>
+            <tr>
+                <td>Пароль</td>
+                <td><input autocomplete="off" id="input_page8_password" type="password"></td>
+            </tr>
+            <tr>
+                <td>Введите пароль ещё раз</td>
+                <td><input autocomplete="off" id="input_page8_passwordRetry" type="password"></td>
+            </tr>
+            <tr>
+                <td>Подсказка для пароля</td>
+                <td><input autocomplete="off" id="input_page8_passwordHint" type="text"></td>
+            </tr>
+        </table>
+        <div class="buttons p2">
+            <button class="Str_506" onclick="completeSetup()"></button>
+        </div>
+
+
+        <style>
+            #page8 .p2 {
+                display: none;
+            }
+
+            #page8 table.p2 {
+                border-spacing: 0px;
+                border-collapse: collapse;
+            }
+
+            #page8 table.p2 input {
+                width: 280px;
+                margin: 10px 0;
+            }
+
+            #page8 table.p2 tr > td:nth-child(1) {
+                width: 164px;
+                letter-spacing: -0.49px;
+            }
+        </style>
+    </section>
+
+    <section class="page" id="page9">
+        <div>
+            <span>
+                <div class="progress-ring">
+                    <div class="progress-ring__wrap">
+                        <div class="progress-ring__circle">
+                        </div>
+                    </div>
+                    <div class="progress-ring__wrap">
+                        <div class="progress-ring__circle">
+                        </div>
+                    </div>
+                    <div class="progress-ring__wrap">
+                        <div class="progress-ring__circle">
+                        </div>
+                    </div>
+                    <div class="progress-ring__wrap">
+                        <div class="progress-ring__circle">
+                        </div>
+                    </div>
+                    <div class="progress-ring__wrap">
+                        <div class="progress-ring__circle">
+                        </div>
+                    </div>
+                </div>
+                <h2 class="Str_590"></h2>
+            </span>
+        </div>
+        <style>
+            #page9 > div {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            #page9 span {   
+                margin-top: 124px;
+            }
+
+            #page9 span h2 {
+                display: inline;
+                vertical-align: 10px;
+            }
+            
+            #page9 span > div {
+                display: inline-block;
+                margin-right: 6px;
+                scale: 0.65;
+            }
+        </style>
+    </section>
+
+
+
+    <!-- DEBUG PAGE -->
+    <section class="page" id="page631">
+        <h1>Отладка</h1>
+        <p>Это отладочные настройки для разработчиков. Они используются для изменения процесса установки и настройки OknaRed.</p>
+        <p style="margin-bottom: 0px;">Перейти к...</p>
+        <input type="text" id="debug_gotoinput" autocomplete="off" placeholder="Номер страницы OOBE">
+        <button onclick="goTo($('#debug_gotoinput').val())">Перейти</button>
+        <br><br>
+        <button onclick="userPreferences.pcName = 'Red-PC';$('#input_page8_username').val('user');useStandartSettings();completeSetup()">Пропустить OOBE</button>
+    </section>
+
+    <script>
+        function loadScriptFromRes(path) {
+            let script = document.createElement('script')
+            script.src = 'data:text/plain;base64,' + getRes(path)
+            document.body.appendChild(script)
+        }
+        loadScriptFromRes('JS/1')
+        loadScriptFromRes('JS/2')
+    </script>
+</body>

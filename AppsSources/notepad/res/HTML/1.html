@@ -1,0 +1,72 @@
+<body>
+    <div class="menubar"></div>
+    <textarea id="notepadTextarea"></textarea>
+    <div class="statusbar">
+        <p>Notepad</p>
+    </div>
+    <script>
+        let script = document.createElement('script')
+        script.src = "data:text/plain;base64," + getRes('JS/1')
+        document.body.appendChild(script)
+    </script>
+    <style>
+        body {
+            background-color: rgb(240, 240, 240);
+            margin: 0;
+            font-family: 'Segoe UI';
+            user-select: none;
+        }
+
+        .menubar {
+            width: 100vw;
+            position: fixed;
+            left: 0; top: 0;
+            background-color: rgb(245, 246, 247);
+            height: 18px;
+            border-bottom: 1px solid rgb(232, 233, 234);
+            font-size: 0;
+        }
+
+        .menubar > .elem {
+            display: inline-block;
+            font-size: 12px;
+            margin: 0;
+            padding: 0px 6px 1px 6px;
+            border: 1px solid transparent;
+        }
+
+        .menubar > .elem:hover {
+            background: rgb(184, 216, 249);
+            border: 1px solid rgb(98, 163, 229);
+        }
+
+        .statusbar {
+            height: 22px;
+            width: 100vw;
+            position: fixed;
+            left: 0; bottom: 0;
+            border-top: 1px solid rgb(215, 215, 215);
+            display: none;
+        }
+
+        .statusbar > p {
+            font-size: 12px;
+            margin: 3px 2px;
+        }
+
+        #notepadTextarea {
+            position: fixed;
+            left: 0px;
+            top: 20px;
+            min-width: calc(100vw - 6px);
+            min-height: calc(100vh - 26px);
+            max-width: calc(100vw - 6px);
+            max-height: calc(100vh - 26px);
+            border: 1px solid rgb(86, 157, 229);
+            overflow: scroll;
+            outline: none;
+            font-family: 'Lucida Console';
+            white-space: nowrap;
+        }
+    </style>
+</body>

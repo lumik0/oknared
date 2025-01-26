@@ -1,0 +1,39 @@
+[
+    {
+        "type": "menu",
+        "text": "File",
+        "content": [
+            {
+                "type": "item",
+                "text": "New\tCTRL+N",
+                "result": "1"
+            },
+            {
+                "type": "item",
+                "text": "Open...\tCTRL+O",
+                "result": "2"
+            },
+            {
+                "type": "item",
+                "text": "Save\tCTRL+S",
+                "result": "3"
+            },
+            {
+                "type": "item",
+                "text": "Save as...",
+                "result": "4"
+            }
+        ]
+    },
+    {
+        "type": "menu",
+        "text": "Edit",
+        "content": [
+            {
+                "type": "item",
+                "text": "Undo\tCTRL+Z",
+                "result": "16"
+            }
+        ]
+    }
+]
