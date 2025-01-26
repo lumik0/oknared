@@ -1,0 +1,144 @@
+#tilesContainer {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    left: 0;
+    top: 0;
+    overflow-x: scroll;
+    padding: 170px 96px 70px 96px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+}
+
+#tilesContainer > .content {
+    display: flex;
+}
+
+#tilesContainer > .content > .group {
+    margin: 0 24px;
+    display: flex;
+}
+
+#tilesContainer > .content > .group > .column {
+    width: 256px;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    height: min-content;
+}
+
+#tilesContainer > .content > .group > .column > .tile {
+    min-width: 120px;
+    height: 120px;
+    margin: 4px 8px 4px 0;
+    background: linear-gradient(90deg, rgb(172, 25, 61) 0%, rgb(191, 30, 75) 100%);
+    box-shadow: 0px 0px 0px 3px rgba(0,0,0,0);
+    transition: scale 0.5s cubic-bezier(0.1, 0.9, 0.2, 1);
+    position: relative;
+}
+
+#tilesContainer > .content > .group > .column > .tile:hover {
+    box-shadow: 0px 0px 0px 3px var(--color-tileborder);
+}
+
+#tilesContainer > .content > .group > .column > .tile:active {
+    scale: 0.95;
+}
+
+#tilesContainer > .content > .group > .column > .tile.wide {
+    width: 248px;
+}
+
+#tilesContainer > .content > .group > .column > .tile.large {
+    width: 248px;
+    height: 248px;
+}
+
+#tilesContainer > .content > .group > .column > .tile > p {
+    font-size: 12px;
+    position: absolute;
+    margin: 0 14px 0 0;
+    left: 14px;
+    bottom: 5px;
+    width: calc(100% - 28px);
+}
+
+#tilesContainer > .content > .group > .column > .tile > img.desktopimage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#tilesContainer > .content > .group > .column > .tile > .border {
+    width: 100%;
+    height: 100%;
+    box-shadow: inset 0px 0px 0px 1px rgba(255, 255, 255, 0.2);
+    position: absolute;
+    top: 0; left: 0;
+}
+
+.showTilesBtn, .showAppsBtn {
+    font-size: 16px;
+    color: white;
+    position: absolute;
+    left: 120px; bottom: 30px;
+    text-decoration: underline;
+}
+
+#appsContainer {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    left: 0;
+    top: 0;
+    overflow-x: scroll;
+    padding: 170px 110px 70px 110px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: flex-start;
+}
+
+#appsContainer > .elemcontainer {
+    width: 283px;
+    /*background-color: rgb(63, 1, 0);*/
+    margin: 2px 7px;
+}
+
+#appsContainer > .elemcontainer > .appelem {
+    width: 283px;
+    height: 46px;
+    /*background-color: rgb(240, 6, 0);*/
+    position: relative;
+    transition: background 0.1s cubic-bezier(0.1, 0.9, 0.2, 1), scale 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+#appsContainer > .elemcontainer > .appelem:hover {
+    background: var(--color-tileborder);
+}
+
+#appsContainer > .elemcontainer > .appelem:active {
+    scale: 0.98;
+}
+
+#appsContainer > .elemcontainer > .appelem > .icon {
+    width: 40px;
+    height: 40px;
+    box-shadow: inset 0px 0px 0px 1px rgba(255, 255, 255, 0.2);
+    background: linear-gradient(90deg, rgb(9, 74, 178) 0%, rgb(34, 92, 185) 100%);
+    position: absolute;
+    margin: 3px;
+}
+
+#appsContainer > .elemcontainer > .appelem > p {
+    margin: 11px 11px 11px 52px;
+    position: absolute;
+    top: 0;
+}
+
+#appsContainer .categoryHeader {
+    margin: 28px 0 5px 2px;
+    color: var(--color-appsCategory);
+}

@@ -1,0 +1,98 @@
+<!--
+    OKNARED TWINUI
+    STARTSCREEN
+-->
+
+<body>
+    <div class="startScreen">
+        <div class="tiles">
+            <h1 class="Str_4136"></h1>
+            <div class="tilesContainer" id="tilesContainer"></div>
+            <div class="showAppsBtn" onclick="showApps()">Show apps</div>
+        </div>
+        <div class="apps">
+            <h1 class="Str_4137"></h1>
+            <div class="appsContainer" id="appsContainer"></div>
+            <div class="showTilesBtn" onclick="showTiles()">Show tiles</div>
+        </div>
+    </div>
+
+    <style>
+        body {
+            --color-background: rgb(24, 0, 82);
+            --color-tileborder: rgb(43,6,128);
+            --color-foreground: rgb(70, 23, 180);
+            --color-appsCategory: rgb(150, 104, 255);
+            user-select: none;
+        }
+
+        .startScreen {
+            background-color: var(--color-background);
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            color: white;
+        }
+
+        .startScreen > .tiles {
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: top 0.5s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .startScreen > .apps {
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 100vh;
+            left: 0;
+            transition: top 0.5s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .startScreen.showApps > .tiles {
+            top: -100vh;
+        }
+
+        .startScreen.showApps > .apps {
+            top: 0vh;
+        }
+
+        .startScreen > div > h1 {
+            font-weight: 100;
+            font-size: 56px;
+            margin: 40px 115px;
+        }
+
+        @keyframes startScreenHideAnim {
+            100% {
+                scale: 0.6;
+                opacity: 0;
+            }
+        }
+
+        .startScreen.hideAnim .tilesContainer > .content {
+            animation: startScreenHideAnim .2s linear forwards;
+        }
+    </style>
+
+    <script>
+        async function loadScriptFromRes(path) {
+            let script = document.createElement('script')
+            script.src = 'data:text/plain;base64,' + (await getResFromFile('/Windows/system32/twinui.el', path))
+            document.body.appendChild(script)
+        }
+        async function loadStylesFromRes(path) {
+            let link = document.createElement('link')
+            link.href = 'data:text/css;base64,' + (await getResFromFile('/Windows/system32/twinui.el', path))
+            link.rel = 'stylesheet'
+            document.head.appendChild(link)
+        }
+        loadScriptFromRes('JS/2')
+        loadStylesFromRes('CSS/2')
+    </script>
+</body>

@@ -1,0 +1,148 @@
+<body>
+    <style>
+        body {
+            --color-background: rgb(24, 0, 82);
+            background-color: var(--color-background);
+            user-select: none;
+        }
+
+        @keyframes fadeShowAnim {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeHideAnim {
+            0% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        @keyframes lockOverlayHideAnim {
+            40% {
+                top: -100vh;
+            }
+            100% {
+                top: -100vh;
+            }
+        }
+
+        .lockscreenOverlay {
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 999;
+            background-size: cover;
+            transition: opacity 0.5s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .lockscreenOverlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .blackOverlay {
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 9999;
+            background-color: black;
+        }
+
+        .date {
+            font-size: 56px;
+            font-weight: 100;
+            position: absolute;
+            left: 80px;
+            bottom: 111px;
+            color: white;
+        }
+
+        .clock {
+            font-size: 142px;
+            font-weight: 100;
+            position: absolute;
+            left: 74px;
+            bottom: 160px;
+            color: white;
+        }
+
+        .userAccountList {
+            display: flex;
+            overflow-x: auto;
+            width: 100vw;
+            height: calc(100vh - 105px);
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 0 48px;
+            align-items: center;
+            box-sizing: border-box;
+            justify-content: center;
+        }
+
+        .userAccountList .elem {
+            min-width: 200px;
+            margin: 0 20px;
+            height: 230px;
+            transition: scale 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .userAccountList .elem:active {
+            scale: 0.98;
+        }
+
+        .userAccountList .elem > img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .userAccountList .elem > p {
+            color: white;
+            position: absolute;
+            margin: 1px 0;
+        }
+    </style>
+
+    <div class="userAccountList">
+        <div class="elem"></div>
+        <div class="elem"></div>
+        <div class="elem"></div>
+        <div class="elem"></div>
+        <div class="elem"></div>
+        <div class="elem"></div>
+        <div class="elem"></div>
+        <div class="elem"></div>
+        <div class="elem"></div>
+        <div class="elem"></div>
+        <div class="elem"></div>
+        <div class="elem"></div>
+    </div>
+
+    <div class="lockscreenOverlay">
+        <div class="clock">6:31</div>
+        <div class="date">четверг, 24 июня</div>
+    </div>
+
+    <div class="blackOverlay"></div>
+
+    <script>
+        function loadScriptFromRes(path) {
+            let script = document.createElement('script')
+            script.src = 'data:text/plain;base64,' + getRes(path)
+            document.body.appendChild(script)
+        }
+        loadScriptFromRes('JS/1')
+    </script>
+</body>

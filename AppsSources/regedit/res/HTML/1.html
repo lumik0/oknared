@@ -1,0 +1,182 @@
+<body>
+    <div class="menubar"></div>
+    <div class="leftpanel"></div>
+    <div class="rightpanel">
+        <table>
+            <tr>
+                <td><p>Имя</p></td>
+                <td><p>Тип</p></td>
+                <td><p>Значение</p></td>
+            </tr>
+        </table>
+        <div class="scroll">
+            <table>
+            </table>
+        </div>
+    </div>
+    <div class="slider"></div>
+    <div class="statusbar">
+        <p>Компьютер</p>
+    </div>
+    <script>
+        let script = document.createElement('script')
+        script.src = "data:text/plain;base64," + getRes('JS/1')
+        document.body.appendChild(script)
+    </script>
+    <style>
+        body {
+            background-color: rgb(240, 240, 240);
+            margin: 0;
+            font-family: 'Segoe UI';
+            user-select: none;
+            --lpwidth: 200px;
+        }
+
+        .menubar {
+            width: 100vw;
+            position: fixed;
+            left: 0; top: 0;
+            background-color: rgb(245, 246, 247);
+            height: 18px;
+            border-bottom: 1px solid rgb(232, 233, 234);
+        }
+
+        .leftpanel {
+            width: var(--lpwidth);
+            background-color: white;
+            border: 1px solid rgb(130, 135, 144);
+            position: fixed;
+            left: 0; top: 20px;
+            height: calc(100vh - 45px);
+            overflow: auto;
+        }
+
+        .rightpanel {
+            width: calc(100vw - var(--lpwidth) - 8px);
+            background-color: white;
+            border: 1px solid rgb(130, 135, 144);
+            position: fixed;
+            right: 0; top: 20px;
+            height: calc(100vh - 45px);
+        }
+
+        .slider {
+            width: 4px;
+            height: calc(100vh - 43px);
+            position: fixed;
+            top: 20px;
+            left: calc(2px + var(--lpwidth));
+            cursor: e-resize;
+        }
+
+        .slider:active {
+            scale: 100;
+        }
+
+        .statusbar {
+            height: 22px;
+            width: 100vw;
+            position: fixed;
+            left: 0; bottom: 0;
+            border-top: 1px solid rgb(215, 215, 215);
+        }
+
+        .statusbar > p {
+            font-size: 12px;
+            margin: 3px 2px;
+        }
+
+        .leftpanel .elem {
+            font-size: 12px;
+            position: relative;
+        }
+
+        .leftpanel .elem > .name {
+            border: 1px transparent solid;
+            background: none;
+            width: fit-content;
+            padding: 0 2px 0 22px;
+            font-size: 12px;
+            font-family: 'Segoe UI';
+            margin-left: 19px;
+            white-space: nowrap;
+        }
+
+        .leftpanel .elem > .name img {
+            position: absolute;
+            left: 21px;
+        }
+
+        .leftpanel .elem > .name:focus {
+            border: 1px solid rgba(38, 160, 218, 1);
+            background-color: rgba(38, 160, 218, 0.2);
+            outline: none;
+        }
+
+        .leftpanel .elem:not(.expanded) > .children {
+            display: none;
+        }
+
+        .leftpanel .elem > .children {
+            width: calc(100% - 19px);
+            margin-left: 19px;
+        }
+
+        .leftpanel .elem > .expand {
+            width: 16px;
+            height: 16px;
+            background-position-y: 0;
+            position: absolute;
+            left: 2px; top: 2px;
+        }
+
+        .leftpanel .elem.expanded > .expand {
+            background-position-y: -16px;
+        }
+
+        .rightpanel table {
+            border-spacing: 0px;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .rightpanel > table {
+            /*width: 100vw;*/
+            height: 25px;
+            position: absolute;
+            left: 0; top: 0;
+            z-index: 9;
+        }
+
+        .rightpanel > table td {
+            border-right: 1px solid rgb(232, 241, 251);
+            border-bottom: 1px solid rgb(232, 241, 251);
+            background-color: rgb(252, 252, 252);
+        }
+
+        .rightpanel table > tbody > tr > td:nth-child(1) {
+            width: 120px;
+        }
+
+        .rightpanel table > tbody > tr > td:nth-child(2) {
+            width: 120px;
+        }
+
+        .rightpanel table > tbody > tr > td:nth-child(3) {
+            width: 286px;
+        }
+
+        .rightpanel table > tbody > tr > td > p {
+            margin: 0px 6px;
+        }
+
+        .rightpanel .scroll {
+            width: 100%;
+            height: calc(100% - 25px);
+            position: absolute;
+            left: 0; top: 0;
+            overflow-y: auto;
+            padding-top: 25px;
+        }
+    </style>
+</body>

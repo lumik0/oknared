@@ -1,0 +1,61 @@
+<body>
+    <img src="" id="osLogo" alt="" />
+    <div class="separator"></div>
+    
+    <p style="width: 397.5px; height: 15px; position: absolute; top: 101.5px; left: 52.5px;" class="productName2"></p>
+    <p style="width: 397.5px; height: 15px; position: absolute; top: 116.5px; left: 52.5px;" class="build"></p>
+    <p style="width: 397.5px; height: 15px; position: absolute; top: 131.5px; left: 52.5px;" class="copyright"></p>
+    <p style="width: 375px; height: 60px; position: absolute; top: 147.5px; left: 52.5px;">Операционная система <span class="productName">%WINDOWS_LONG%</span> и пользовательский интерфейс в ней защищены правами на товарные знаки и иные объекты интеллектуальной собственности в США и других странах.</p>
+    <p style="width: 330px; height: 39px; position: absolute; top: 245.5px; left: 52.5px;">Этот продукт лицензирован в соответствии с <A>условиями лицензионного соглашения на использование программного обеспечения корпорации Майкрософт</A>, выданного:</p>
+    <script>
+        getResFromFile('/Windows/Branding/Basebrd/basebrd.el', 'PNG/oknared2').then(async (data) => {
+            $('#osLogo').attr('src', 'data:image/png;base64,' + data)
+            let productName2 = (await getResFromFile('/Windows/Branding/Basebrd/basebrd.el', 'String/15')) + ' ' + (await getResFromFile('/Windows/Branding/Basebrd/basebrd.el', 'String/10'))
+            let build = (await getResFromFile("/Windows/system32/shell32.el", 'String/60'))
+                .replace('%d.%d', currentVer.ver)
+                .replace('%d%s', currentVer.build.split('.')[0])
+                .replace('%s', '')
+            let productName = await getResFromFile('/Windows/Branding/Basebrd/basebrd.el', 'String/12')
+            let copyright = await getResFromFile('/Windows/Branding/Basebrd/basebrd.el', 'String/14')
+
+            $('.productName').html(productName)
+            $('.productName2').html(productName2)
+            $('.build').html(build)
+            $('.copyright').html(copyright)
+        })
+
+    </script>
+    <style>
+        body {
+            background-color: rgb(240, 240, 240);
+            margin: 0;
+            font-family: 'Tahoma';
+            user-select: none;
+        }
+
+        .separator {
+            width: calc(100vw - 33px);
+            margin: 7px 0 0 15px;
+            height: 1px;
+            background-color: rgb(160, 160, 160);
+            border-right: 1px solid white;
+            border-bottom: 1px solid white;
+        }
+
+        p {
+            font-size: 11px;
+            letter-spacing: 0.08px;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        a {
+            color: rgb(0, 102, 204);
+            text-decoration: underline;
+        }
+
+        a:hover {
+            cursor: pointer;
+        }
+    </style>
+</body>

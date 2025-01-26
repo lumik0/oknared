@@ -1,0 +1,69 @@
+<!--
+    OKNARED TWINUI
+    STARTBUTTON-METRO
+-->
+
+<body>
+    <div class="startButton">
+        <div></div>
+    </div>
+    <style>
+        .startButton {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            left: 0; top: 0;
+            background-color: rgb(17, 17, 17);
+        }
+
+        .startButton > div {
+            width: 32px;
+            height: 32px;
+            margin: 4px 9px;
+            background-color: red;
+            filter: contrast(0.88);
+        }
+    </style>
+    <script>
+        async function init() {
+            window.parent.postMessage({
+                message: 'eval',
+                eval: `
+                    window.explorer_startButtonWID = ${wid}
+                    $('#WindowContainer_${wid}').css('display', 'none')
+                `
+            })
+            $('.startButton > div').css('background-image', 'url("data:image/png;base64,' + await getResFromFile('/Windows/system32/twinui.el', 'IMAGE/11703') + '")')
+            document.addEventListener('click', () => {
+                window.parent.postMessage({
+                    message: "eval",
+                    eval: `
+                        $('#WindowFrame_' + explorer_startScreenWID)[0].contentWindow.postMessage({
+                            message: 'show'
+                        })
+                    `
+                })
+            })
+            window.addEventListener('message', (e) => {
+                var data = e.data
+                if (data.message == "show") {
+                    window.parent.postMessage({
+                        message: 'eval',
+                        eval: `
+                            $('#WindowContainer_${wid}').css('display', 'block')
+                        `
+                    })
+                }
+            })
+            $('.startButton').hover(() => {}, () => {
+                window.parent.postMessage({
+                    message: 'eval',
+                    eval: `
+                        $('#WindowContainer_${wid}').css('display', 'none')
+                    `
+                })
+            })
+        }
+        init()
+    </script>
+</body>
